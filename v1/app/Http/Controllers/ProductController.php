@@ -85,19 +85,6 @@ class ProductController extends Controller
                 ->where('product_master.language_code',$request->language_code)
                 ->where('product_master.type', $request->model)
                 ->first();
-
-                // ->whereNull('product_master.id_product_master_id')->first();
-
-                // $transaction = Product::select('*')
-                // ->leftJoin('product_detail', function($join) {
-                //     $join->on('product_detail.id_product_master_id', '=', 'product_master.id_product_master_id');
-                   
-                // })
-                // ->where('product_master.country_code',$request->country_code)
-                // ->where('product_masterlanguage_code',$request->language_code)
-                // ->where('product_master.type', $request->model)
-                // ->limit(1)
-                // ->get();
                 $response = [
                     'success'=> true,
                     'message'=> 'Detail Product',
@@ -130,13 +117,13 @@ class ProductController extends Controller
                 return $response; 
             }else{
                 $transaction = Product::select('*')
+                ->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
                 ->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
                 ->where('media.mediable_type', 'App\Model\ProductMasterId')
-                ->where('country_code',$request->country_code)
-                ->where('language_code',$request->language_code)
-                ->where('sku', $request->sku)
-                ->limit(1)
-                ->get();
+                ->where('product_master.country_code',$request->country_code)
+                ->where('product_master.language_code',$request->language_code)
+                ->where('product_master.sku', $request->sku)
+                ->first();
                 $response = [
                     'success'=> true,
                     'message'=> 'List Product',
