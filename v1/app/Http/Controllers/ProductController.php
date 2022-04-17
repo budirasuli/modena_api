@@ -35,7 +35,7 @@ class ProductController extends Controller
                 ];
                 return $response; 
             }else{
-                $transaction = Product::select('*')
+                $transaction = DB::table('product_master')->select('*', DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"))
                 ->where('country_code',$request->country_code)
                 ->where('language_code',$request->language_code)
                 ->get();
