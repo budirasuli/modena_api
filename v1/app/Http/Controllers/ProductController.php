@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +16,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $token = $request->key;
-        //  dd($token);
+        //dd($token);
         if (is_null($token) OR empty($token) ){
             $response = [
                 'success'=> false,
