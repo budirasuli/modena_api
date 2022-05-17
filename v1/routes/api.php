@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\ServiceCenterController;
+use App\Http\Controllers\RentalController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,22 +35,14 @@ Route::get('/address/{id}', [AddressController::class, 'edit']);
 Route::put('/address/{id}', [AddressController::class, 'update']);
 Route::delete('/address/{id}',[AddressController::class, 'destroy']);
 
-
 // Service
 Route::get('/service', [ServiceCenterController::class, 'index']);
 Route::post('/service', [ServiceCenterController::class, 'store']);
-Route::get('/service/{id}', [ServiceCenterController::class, 'edit']);
-Route::put('/service/{id}', [ServiceCenterController::class, 'update']);
-Route::delete('/service/{id}',[ServiceCenterController::class, 'destroy']);
+
+// Rental
+Route::get('/rental', [RentalController::class, 'index']);
+Route::post('/rental', [RentalController::class, 'store']);
 
 // Trade In
-Route::get('/tradein', [ServiceCenterController::class, 'index']);
-Route::post('/tradein', [ServiceCenterController::class, 'store']);
-Route::get('/tradein/{id}', [ServiceCenterController::class, 'edit']);
-Route::put('/tradein/{id}', [ServiceCenterController::class, 'update']);
-Route::delete('/tradein/{id}',[ServiceCenterController::class, 'destroy']);
-
-
-
-
-
+Route::get('/tradein', [TradeInController::class, 'index']);
+Route::post('/tradein', [TradeInController::class, 'store']);
