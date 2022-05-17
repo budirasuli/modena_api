@@ -58,6 +58,7 @@ class FormServiceCenter extends Model
         'postal_code',
         'phone',
         'email',
+        'title_code',
         'first_name',
         'last_name',
         'address',
