@@ -15,6 +15,8 @@ class AddDataSourceToFormServiceCenterTable extends Migration
     {
         Schema::table('form_service_center', function (Blueprint $table) {
             $table->string('data_source', 5)->default('WEB')->after('is_migration');
+            $table->string('title_code', 5)->after('data_source');
+            
         });
     }
 
@@ -27,6 +29,7 @@ class AddDataSourceToFormServiceCenterTable extends Migration
     {
         Schema::table('form_service_center', function (Blueprint $table) {
             $table->dropColumn('data_source');
+            $table->dropColumn('title_code');
         });
     }
 }
