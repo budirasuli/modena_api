@@ -23,7 +23,6 @@ class ProductController extends Controller
                 'message'=> 'List Product'
             ];
             return $response;
-           
         }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
 
@@ -32,7 +31,7 @@ class ProductController extends Controller
                     'success'=> false,
                     'message'=> 'List Product'
                 ];
-                return $response; 
+                return $response;
             }else{
                 $transaction = DB::table('product_master')->select('*', DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"))
                 ->where('country_code',$request->country_code)
@@ -46,7 +45,7 @@ class ProductController extends Controller
                 return $response;
             }
         }
-        
+
     }
 
     /**
@@ -56,7 +55,7 @@ class ProductController extends Controller
      */
     public function detail(Request $request)
     {
-        
+
         $token = $request->key;
         //  dd($token);
         if (is_null($token) OR empty($token) ){
@@ -65,7 +64,7 @@ class ProductController extends Controller
                 'message'=> 'Detail Product'
             ];
             return $response;
-           
+
         }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
 
@@ -74,7 +73,7 @@ class ProductController extends Controller
                     'success'=> false,
                     'message'=> 'Detail Product'
                 ];
-                return $response; 
+                return $response;
             }else{
                 $transaction = Product::select('*')
                 ->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
@@ -104,7 +103,7 @@ class ProductController extends Controller
                 'message'=> 'List Product'
             ];
             return $response;
-           
+
         }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
 
@@ -113,7 +112,7 @@ class ProductController extends Controller
                     'success'=> false,
                     'message'=> 'List Product'
                 ];
-                return $response; 
+                return $response;
             }else{
                 $transaction = Product::select('*')
                 ->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')

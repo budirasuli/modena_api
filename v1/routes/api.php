@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\ServiceCenterController;
 use App\Http\Controllers\RentalController;
 use Illuminate\Http\Request;
@@ -46,3 +47,6 @@ Route::post('/rental', [RentalController::class, 'store']);
 // Trade In
 Route::get('/tradein', [TradeInController::class, 'index']);
 Route::post('/tradein', [TradeInController::class, 'store']);
+
+// FAQ
+Route::get('/faq', [FaqController::class, 'index']);
