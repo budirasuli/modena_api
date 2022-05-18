@@ -39,12 +39,17 @@ class FaqController extends Controller
                         'message'=> 'Search key cannot less then 3 words'
                     ];
                 }else{
-                    $faqs = Faq::where('country_code',$request->country_code)
+                    $search = explode(' ', $search);
+
+                    $faqs = Faq::select('id', 'title')
+                        ->where('country_code',$request->country_code)
                         ->where('language_code',$request->language_code)
                         ->where(function($query) use ($search){
-                            $query->where('title', 'LIKE', '%'.$search.'%');
-                            $query->orWhere('description', 'LIKE', '%'.$search.'%');
-                            $query->orWhere('slug', 'LIKE', '%'.$search.'%');
+                            foreach($search as $key => $val){
+                                $query->where('title', 'LIKE', '%'.$val.'%');
+                                $query->orWhere('description', 'LIKE', '%'.$val.'%');
+                                $query->orWhere('slug', 'LIKE', '%'.$val.'%');
+                            }
                         })
                         ->get();
 
@@ -52,6 +57,45 @@ class FaqController extends Controller
                         'success'=> true,
                         'message'=> 'List FAQ',
                         'data' => $faqs
+                    ];
+                }
+            }
+        }
+
+        return $response;
+    }
+
+    public function faq_detail($id, Request $request)
+    {
+        $token = $request->key;
+
+        if (is_null($token) || empty($token)){
+            $response = [
+                'success'=> false,
+                'message'=> 'Token cannot be null'
+            ];
+        }else{
+            $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
+
+            if (!$api_key){
+                $response = [
+                    'success'=> false,
+                    'message'=> 'Token mismatch'
+                ];
+            }else{
+                if(empty($id)){
+                    $response = [
+                        'success'=> false,
+                        'message'=> 'FAQ ID cannot be null'
+                    ];
+                }else{
+                    $faq = Faq::where('id', $id)
+                        ->first();
+
+                    $response = [
+                        'success'=> true,
+                        'message'=> 'Detail FAQ',
+                        'data' => $faq
                     ];
                 }
             }

@@ -50,3 +50,4 @@ Route::post('/tradein', [TradeInController::class, 'store']);
 
 // FAQ
 Route::get('/faq', [FaqController::class, 'index']);
+Route::get('/faq-detail/{id}', [FaqController::class, 'faq_detail']);
