@@ -21,10 +21,12 @@ class Rental extends Model
         'id_district',
         'id_village',
         'postal_code',
+        'title_code',
         'name',
         'phone',
         'email',
         'address',
+        'data_source',
     ];
 
     public function product()

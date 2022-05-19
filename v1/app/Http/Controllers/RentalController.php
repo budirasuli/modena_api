@@ -122,6 +122,7 @@ class RentalController extends Controller
                     'address'              => 'required',
                     'id_province'          => 'required',
                     'id_city'              => 'required',
+                    
                 ];
 
                 if($request->country_code == 'id') {
@@ -155,10 +156,13 @@ class RentalController extends Controller
                     'id_district'      => ($request->id_district) ? $request->id_district : null,
                     'id_village'       => ($request->id_subdistrict) ? $request->id_subdistrict : null,
                     'postal_code'      => ($request->postal_code) ? $request->postal_code : null,
+                    'title_code'       => $request->title_code,
                     'name'             => $request->name,
                     'phone'            => $request->phone,
                     'email'            => $request->email,
                     'address'          => $request->address,
+                    'data_source'          => 'CHAT',
+                    
                 ];
 
                 $dataRent->fill($insRent)->save();
