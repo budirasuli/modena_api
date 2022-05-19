@@ -560,7 +560,6 @@ class ServiceCenterController extends Controller
             }
             
             $no_submission = 'TRD-'.substr($request->phone, -4).'-'.date('YmdHis');
-
             DB::beginTransaction();
             try {
                 $dataTrd = new FormTradeIn();

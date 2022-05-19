@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Model\FormRental;
-use App\Model\FormRentalProduct;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
+
+use App\Models\Rental;
+use App\Models\RentalProduct;
 
 class RentalController extends Controller
 {
@@ -35,61 +36,53 @@ class RentalController extends Controller
                 ];
                 return $response; 
             }else{
-
                 if($request->phone){
-                    // Rental List by phone
-                    $transaction = DB::table('form_rental')->select('*')
-                    ->where('country_code',$request->country_code)
-                    ->where('phone',$request->phone)
-                    ->get();
+                    $rental = Rental::select('*')
+                        ->with('product')
+                        ->where('country_code',$request->country_code)
+                        ->where('phone',$request->phone)
+                        ->get();
+
                     $response = [
                         'success'=> true,
                         'message'=> 'List Rental By Phone',
-                        'data'=> $transaction
+                        'data'=> $rental
                     ];
                     return $response; 
 
                 }else if($request->email){
+                
                     // Rental List by email
-                    $transaction = DB::table('form_rental')->select('*')
-                    ->where('country_code',$request->country_code)
-                    ->where('email',$request->email)
-                    ->get();
+                    $rental = Rental::select('*')
+                        ->with('product')
+                        ->where('country_code',$request->country_code)
+                        ->where('email',$request->email)
+                        ->get();
+
+
                     $response = [
                         'success'=> true,
                         'message'=> 'List Rental By Email',
-                        'data'=> $transaction
+                        'data'=> $rental
                     ];
                     return $response; 
                 }else{
-                // Rental List
-                $rental = DB::table('form_rental')->select('*')
-                ->where('country_code',$request->country_code)
-                ->get();
+                    
+                    // Rental List
+                    $rental = Rental::select('*')
+                    ->with('product')
+                    ->where('country_code',$request->country_code)
+                    ->get();
 
-                // $rental_product = DB::table('form_rental')->select('*')
-                // ->where('id_form_rental',$rental->id)
-                // ->get();
-
-                $response = [
-                    'success'=> true,
-                    'message'=> 'List Rental',
-                    'data'=> $rental
-                ];
-                return $response; 
+                    $response = [
+                        'success'=> true,
+                        'message'=> 'List Rental',
+                        'data'=> $rental
+                    ];
+                    return $response; 
                 }
             }
         }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -130,68 +123,62 @@ class RentalController extends Controller
         // foreach ($request->product as $key => $product) {
         //     $rules["product.$key.*"]                    = ['required'];
         //     $rules["product.$key.id_product_master_id"] = ['required'];
-        //     // $rules["product.$key.name"]                 = ['required'];
+        //     $rules["product.$key.name"]                 = ['required'];
         //     $rules["product.$key.qty"]                  = ['required','min:1'];
-
         //     $attributes["product.$key.id_product_master_id"] = "Product";
-        //     // $attributes["product.$key.name"]                 = "Product Name";
+        //     $attributes["product.$key.name"]                 = "Product Name";
         //     $attributes["product.$key.qty"]                  = "Quantity";
         // }
 
         $request->validate($rules, $messages, $attributes);
 
         $no_submission = 'RENT-'.substr($request->phone, -4).'-'.date('YmdHis');
-        
-        $response = [
-            'success'=> false,
-            'message'=> 'Cant save Your Rental Order'
+
+        $dataRent = new Rental();
+
+        $insRent  = [
+            'no_submission'    => $no_submission,
+            'csms_customer_id' => $request->csms_customer_id,
+            'csms_address_id'  => $request->csms_address_id,
+            'csms_phone_id'    => $request->csms_phone_id,
+            'country_code'     => $request->country_code,
+            'id_province'      => ($request->id_province) ? $request->id_province : null,
+            'id_city'          => ($request->id_city) ? $request->id_city : null,
+            'id_district'      => ($request->id_district) ? $request->id_district : null,
+            'id_village'       => ($request->id_subdistrict) ? $request->id_subdistrict : null,
+            'postal_code'      => ($request->postal_code) ? $request->postal_code : null,
+            'name'             => $request->name,
+            'phone'            => $request->phone,
+            'email'            => $request->email,
+            'address'          => $request->address,
         ];
-        return $request;
+
+        $dataRent->fill($insRent)->save();
+        $idInsRent = $dataRent->id;
+        //insert product
+        // foreach ($request->product as $key => $product) {
+        //     $dataProduct = new RentalProduct();
+
+        //     $insProduct = [
+        //         'id_form_rental'       => $idInsRent,
+        //         'id_product_master_id' => $product['id_product_master_id'],
+        //         'name'                 => $product['name'],
+        //         'qty'                  => $product['qty']
+        //     ];
+
+        //     $dataProduct->fill($insProduct)->save();
+        //     $idInsProduct = $dataProduct->id;
+        // }
+
+        // $rentalData = Rental::find($idInsRent);
+
+
+        $response = [
+            'success'=> true,
+            'message'=> 'Your Rental Order has been saved'
+        ];
+        return $response;
        
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }
