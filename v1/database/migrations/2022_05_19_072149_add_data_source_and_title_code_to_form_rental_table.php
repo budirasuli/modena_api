@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddDataSourceToAndTitleCodeFormContractServiceTable extends Migration
+class AddDataSourceAndTitleCodeToFormRentalTable extends Migration
 {
     /**
      * Run the migrations.
@@ -26,7 +26,7 @@ class AddDataSourceToAndTitleCodeFormContractServiceTable extends Migration
      */
     public function down()
     {
-        Schema::table('form_contract_rental', function (Blueprint $table) {
+        Schema::table('form_rental', function (Blueprint $table) {
             $table->dropColumn('data_source');
             $table->dropColumn('title_code');
         });
