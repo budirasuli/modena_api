@@ -77,8 +77,6 @@ class StoreController extends Controller
             }else{
                 if(!empty($longatitude) || !empty($latitude)  || !empty($search)){
                     if(is_numeric($longatitude) || is_numeric($latitude)){
-                        $search = explode(' ', $search);
-
                         $storeOfficial = StoreOfficial::select(
                             'store_official.id',
                             'store_official.id_store_category_id',
@@ -98,12 +96,10 @@ class StoreController extends Controller
                             $query->on('store_category.id_store_category_id', '=', 'store_official.id_store_category_id');
                             $query->on('store_category.country_code', '=', 'store_official.country_code');
                         })
-                        ->where(function($query) use ($search){
-                            foreach($search as $key => $val){
-                                $query->where('store_official.store_name', 'LIKE', '%'.$val.'%');
-                                $query->orWhere('store_official.store_address', 'LIKE', '%'.$val.'%');
-                                $query->orWhere('store_official.google_address', 'LIKE', '%'.$val.'%');
-                            }
+                        ->where('store_official.store_name', 'LIKE', '%'.$search.'%')
+                        ->orWhere(function($query) use ($search){
+                            $query->where('store_official.store_address', 'LIKE', '%'.$search.'%');
+                            $query->orWhere('store_official.google_address', 'LIKE', '%'.$search.'%');
                         })
                         ->where('store_official.country_code', $country_code)
                         ->where('store_official.active', 1)
@@ -123,8 +119,6 @@ class StoreController extends Controller
                         ];
                     }
                 }else if(!empty($search)){
-                    $search = explode(' ', $search);
-
                     $storeOfficial = StoreOfficial::select(
                         'store_official.id',
                         'store_official.id_store_category_id',
@@ -145,12 +139,10 @@ class StoreController extends Controller
                     })
                     ->where('store_official.country_code', $country_code)
                     ->where('store_official.active', 1)
-                    ->where(function($query) use ($search){
-                        foreach($search as $key => $val){
-                            $query->where('store_official.store_name', 'LIKE', '%'.$val.'%');
-                            $query->orWhere('store_official.store_address', 'LIKE', '%'.$val.'%');
-                            $query->orWhere('store_official.google_address', 'LIKE', '%'.$val.'%');
-                        }
+                    ->where('store_official.store_name', 'LIKE', '%'.$search.'%')
+                    ->orWhere(function($query) use ($search){
+                        $query->where('store_official.store_address', 'LIKE', '%'.$search.'%');
+                        $query->orWhere('store_official.google_address', 'LIKE', '%'.$search.'%');
                     })
                     ->get();
 
