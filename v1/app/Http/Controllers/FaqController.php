@@ -92,6 +92,8 @@ class FaqController extends Controller
                     $faq = Faq::where('id', $id)
                         ->first();
 
+                    $faq['description'] = strip_tags($faq['description']);
+
                     $response = [
                         'success'=> true,
                         'message'=> 'Detail FAQ',

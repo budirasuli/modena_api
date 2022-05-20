@@ -13,7 +13,7 @@ class ProductMaster extends Model
     protected $table = 'product_master';
 
     protected $fillable = [
-        'id_product_master_id', 
+        'id_product_master_id',
         'master_name',
         'id_product_series_id',
         'id_product_sub_category_id',
@@ -30,7 +30,7 @@ class ProductMaster extends Model
         'created_by',
         'updated_by',
         'deleted_by',
-        'image', 
+        'image',
     ];
 
     /**
@@ -70,7 +70,7 @@ class ProductMaster extends Model
             return $this->productDetail->price;
         } else {
             return '';
-        }      
+        }
     }
 
     public function getHeaderDescriptionAttribute()
@@ -79,7 +79,7 @@ class ProductMaster extends Model
             return $this->productDetail->header_description;
         } else {
             return '';
-        }   
+        }
     }
 
     public function getFeaturesAttribute()
