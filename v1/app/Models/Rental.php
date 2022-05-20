@@ -33,4 +33,23 @@ class Rental extends Model
     {
        return $this->hasMany(RentalProduct::class, 'id_form_rental','id');
     }
+    public function province()
+    {
+        return $this->hasOne(MasterProvince::class,'id_province','id_province');
+    }
+
+    public function city()
+    {
+        return $this->hasOne(MasterCity::class,'id_city','id_city');
+    }
+
+    public function district()
+    {
+        return $this->hasOne(MasterDistrict::class,'id_district','id_district');
+    }
+
+    public function village()
+    {
+        return $this->hasOne(MasterVillage::class,'id_village','id_village');
+    }
 }
