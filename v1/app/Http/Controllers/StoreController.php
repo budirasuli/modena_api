@@ -75,8 +75,8 @@ class StoreController extends Controller
                     'message' => 'Token mismatch'
                 ];
             }else{
-                if(!empty($longatitude) || !empty($latitude)  || !empty($search)){
-                    if(is_numeric($longatitude) || is_numeric($latitude)){
+                if(!empty($longatitude) && !empty($latitude)  && !empty($search)){
+                    if(is_numeric($longatitude) && is_numeric($latitude)){
                         $storeOfficial = StoreOfficial::select(
                             'store_official.id',
                             'store_official.id_store_category_id',
@@ -151,8 +151,8 @@ class StoreController extends Controller
                         'message'=> 'List Official Store',
                         'data' => $storeOfficial
                     ];
-                }else if(!empty($longatitude) || !empty($latitude)){
-                    if(is_numeric($longatitude) || is_numeric($latitude)){
+                }else if(!empty($longatitude) && !empty($latitude)){
+                    if(is_numeric($longatitude) && is_numeric($latitude)){
                         $storeOfficial = StoreOfficial::select(
                             'store_official.id',
                             'store_official.id_store_category_id',
