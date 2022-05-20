@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 
 use App\Models\Rental;
@@ -183,11 +184,28 @@ class RentalController extends Controller
                     $idInsProduct = $dataProduct->id;
                 }
 
+                $rentalData = Rental::find($idInsRent);
+
+                // Mail::to(
+                //     env(
+                //         'CUSTOMERCARE_EMAIL_RECIPIENT',
+                //         'customercare@modena.com'
+                //     )
+                // )
+                // ->send(new \App\Mail\RentalMail($rentalData));
+
+                // if(env('CUSTOMERCARE_EMAIL_DEVMODE',false) == true) {
+                //     $bccs = explode(',', env('CUSTOMERCARE_EMAIL_BCC','dwiki.herdiansyah@modena.com'));
+
+                //     foreach ($bccs as $bcc) {
+                //         Mail::bcc($bcc)->send(new \App\Mail\RentalMail($rentalData));
+                //     }
+                // }
 
 
                 $response = [
                     'success'=> true,
-                    'message'=> 'Your Rental Order has been saved'
+                    'message'=> 'Your rental request form has been submitted'
                 ];
 
                 return $response;
