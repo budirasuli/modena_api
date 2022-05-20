@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -50,10 +50,12 @@ class FormTradeIn extends Model
         'id_district',
         'id_village',
         'postal_code',
+        'title_code',
         'name',
         'phone',
         'email',
         'address',
+        'data_source',
     ];
 
     public function formTradeInProductInformation()
