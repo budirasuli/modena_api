@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FormTradeIn;
+use App\Models\FormTradeInProductInformation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 
 class TradeInController extends Controller
 {
@@ -11,20 +16,77 @@ class TradeInController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $token = $request->key;
+        //dd($token);
+        if (is_null($token) OR empty($token) ){
+            $response = [
+                'success'=> false,
+                'message'=> 'Token cannot be null'
+            ];
+            return $response;
+            
+        }else{
+            $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
+            if (!$api_key){
+                $response = [
+                    'success'=> false,
+                    'message'=> 'Token mismatch'
+                ];
+                return $response; 
+            }else{
+                if($request->phone){
+                    $rental = FormTradeIn::select('*')
+                        ->with('formTradeInProductInformation')
+                        ->where('country_code',$request->country_code)
+                        ->where('phone',$request->phone)
+                        ->get();
+
+                    $response = [
+                        'success'=> true,
+                        'message'=> 'List Trade In By Phone',
+                        'data'=> $rental
+                    ];
+                    return $response; 
+
+                }else if($request->email){
+                
+                    // Rental List by email
+                    $rental = FormTradeIn::select('*')
+                        ->with('formTradeInProductInformation')
+                        ->where('country_code',$request->country_code)
+                        ->where('email',$request->email)
+                        ->get();
+
+
+                    $response = [
+                        'success'=> true,
+                        'message'=> 'List Trade In By Email',
+                        'data'=> $rental
+                    ];
+                    return $response; 
+                }else{
+                    
+                    // Rental List
+                    $rental = FormTradeIn::select('*')
+                    ->with('formTradeInProductInformation')
+                    ->with('formTradeInProductInformation.image')
+                    ->where('country_code',$request->country_code)
+                    ->get();
+
+                    $response = [
+                        'success'=> true,
+                        'message'=> 'List Trade In',
+                        'data'=> $rental
+                    ];
+                    return $response; 
+                }
+            }
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+   
 
     /**
      * Store a newly created resource in storage.
@@ -34,51 +96,191 @@ class TradeInController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $token = $request->key;
+        //dd($token);
+        if (is_null($token) OR empty($token) ){
+            $response = [
+                'success'=> false,
+                'message'=> 'Token cannot be null'
+            ];
+            return $response;
+            
+        }else
+        {
+            $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
+            if (!$api_key){
+                $response = [
+                    'success'=> false,
+                    'message'=> 'Token mismatch'
+                ];
+                return $response; 
+            }else
+            {
+                $rules = [
+                'title_code'  => 'required',
+                'name'        => 'required|regex:/^[\pL\s\-]+$/u',
+                'email'       => 'required|email',
+                'phone'       => 'required|min:10|numeric',
+                'address'     => 'required|min:8',
+                'id_province' => 'required',
+                'id_city'     => 'required',
+                'declare'     => 'required',
+                ];
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+                if($request->country_code == 'id') {
+                $rules ['id_district']    = 'required';
+                $rules ['id_subdistrict']     = 'required';
+                $rules ['id_postal_code'] = 'required';
+                }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+                foreach ($request->product_info as $key => $input) {
+                    $rules["product_info.$key.*"]           = ['required'];
+                    $rules["product_info.$key.brand"]       = ['required'];
+                    $rules["product_info.$key.id_category"] = ['required'];
+                    $rules["product_info.$key.age_product"] = ['required'];
+                    $rules["product_info.$key.image"]       = ['required','file','image','max:250'];
+                    // $rules["product_info.$key.requests.*"]  = ['required'];
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+                    $attributes["product_info.$key.brand"]       = "Brand";
+                    $attributes["product_info.$key.id_category"] = "Category";            
+                    $attributes["product_info.$key.age_product"] = "Age Product";            
+                    $attributes["product_info.$key.image"]       = "Image";            
+                    // $attributes["product_info.$key.requests.*"]  = "Request";
+                }
+
+                $messages = [
+                    'required' => __('Please fill in this field'),
+                    'email'    => "Please include an @ in the email address. '" . $request->email . "' is missing an '@'",
+                    'regex'    => __('This field contain number')
+                ];
+
+                $attributes = [];
+
+                $request->validate($rules, $messages, $attributes);
+                $no_submission = 'TRD-'.substr($request->phone, -4).'-'.date('YmdHis');
+                DB::beginTransaction();
+                try {
+                    $dataTrd = new FormTradeIn();
+
+                    $insTrd  = [
+                        'no_submission'    => $no_submission,
+                        'csms_customer_id' => $request->csms_customer_id,
+                        'csms_address_id'  => $request->csms_address_id,
+                        'csms_phone_id'    => $request->csms_phone_id,
+                        'country_code'     => $request->country_code,
+                        'id_province'      => ($request->id_province) ? $request->id_province : null,
+                        'id_city'          => ($request->id_city) ? $request->id_city : null,
+                        'id_district'      => ($request->id_district) ? $request->id_district : null,
+                        'id_village'       => ($request->id_subdistrict) ? $request->id_subdistrict : null,
+                        'postal_code'      => ($request->postal_code) ? $request->postal_code : null,
+                        'title_code'       => $request->title_code,
+                        'name'             => $request->name,
+                        'phone'            => $request->phone,
+                        'email'            => $request->email,
+                        'address'          => $request->address,
+                        'data_source'      => 'CHAT',
+                    ];
+
+                    $dataTrd->fill($insTrd)->save();
+
+                    $idInsTrd = $dataTrd->id;
+
+                    foreach ($request->product_info as $key => $info) {
+                        $dataInfo = new FormTradeInProductInformation();
+
+                        $insInfo = [
+                            'id_form_trade_in' => $idInsTrd,
+                            'brand'            => $info['brand'],
+                            'id_category'      => $info['id_category'],
+                            'age_product'      => $info['age_product'],
+                            'requests'         => isset($info['requests']) ? $info['requests'] : [],
+                        ];
+
+                        $dataInfo->fill($insInfo)->save();
+
+                        $idInsInfo = $dataInfo->id;
+
+                        if ($request->hasFile("product_info.$key.image")) {
+                            $this->storeFile(
+                                $request->file("product_info.$key.image"),
+                                $dataInfo, 
+                                'image',
+                                "images/form_trade_in/{$idInsTrd}/{$idInsInfo}",
+                                'image'
+                            );
+                        }
+                    }
+
+                    $tradeInData = FormTradeIn::find($idInsTrd);
+
+                    // $tradeInData = FormTradeIn::select('*')
+                    //     ->with('formTradeInProductInformation')
+                    //     ->with('formTradeInProductInformation.image')
+                    //     ->where('id',$idInsTrd)
+                    //     ->first();
+                        
+                        
+
+                    // Mail::to(
+                    //     env(
+                    //         'CUSTOMERCARE_EMAIL_RECIPIENT',
+                    //         'customercare@modena.com'
+                    //     )
+                    // )
+                    // ->send(new \App\Mail\TradeInMail($tradeInData));
+
+                    // if(env('CUSTOMERCARE_EMAIL_DEVMODE',false) == true) {
+                    //     $bccs = explode(',', env('CUSTOMERCARE_EMAIL_BCC','dwiki.herdiansyah@modena.com'));
+
+                    //     foreach ($bccs as $bcc) {
+                    //         Mail::bcc($bcc)->send(new \App\Mail\TradeInMail($tradeInData));
+                    //     }
+                    // }
+
+                    DB::commit();
+
+                    $response = [
+                        'success'=> true,
+                        'message'=> 'Your information has been saved, please wait for a reply from our customer service !'
+                    ];
+                    return $response; 
+
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    throw $e;
+                    $response = [
+                        'success'=> false,
+                        'message'=> 'Form Submit failed !'
+                    ];
+                    return $response;
+                }    
+            }
+        }
+    }
+    protected function storeFile($file, $model, $relation, $path, $content_type = null)
     {
-        //
+        $document = $file;
+        $fileName = $document->hashName();
+
+        $data = [
+            'content_type' => $content_type,
+            'name'         => $document->getClientOriginalName(),
+            'path'         => $path,
+            'file_name'    => $fileName,
+            'type'         => $document->getClientOriginalExtension() === 'pdf' ? 'pdf' : 'image',
+            'mime_type'    => $document->getMimeType(),
+            'disk'         => config('filesystems.default'),
+            'extension'    => $document->getClientOriginalExtension(),
+            'size'         => $document->getSize(),
+        ];
+
+        if ($model->$relation) {
+            $model->$relation()->update($data);
+        } else {
+            $model->$relation()->create($data);
+        }
+
+        Storage::putFileAs("$path/", $document, $fileName, 'public');
     }
 }

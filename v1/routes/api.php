@@ -3,8 +3,11 @@
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\ManualBookController;
 use App\Http\Controllers\ServiceCenterController;
 use App\Http\Controllers\RentalController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\TradeInController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -51,3 +54,10 @@ Route::post('/tradein', [TradeInController::class, 'store']);
 // FAQ
 Route::get('/faq', [FaqController::class, 'index']);
 Route::get('/faq-detail/{id}', [FaqController::class, 'faq_detail']);
+
+// Store Location
+Route::get('/online-store', [StoreController::class, 'online_store']);
+Route::get('/store-location', [StoreController::class, 'store_location']);
+
+// Manual Book Download
+Route::get('/manual-book', [ManualBookController::class, 'index']);
