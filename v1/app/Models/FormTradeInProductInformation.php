@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -63,6 +63,6 @@ class FormTradeInProductInformation extends Model
 
     public function image()
     {
-        return $this->morphOne('App\Model\Media', 'mediable')->where('content_type', 'image');
+        return $this->morphOne('App\Models\Media', 'mediable')->where('content_type', 'image');
     }
 }

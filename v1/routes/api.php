@@ -7,6 +7,7 @@ use App\Http\Controllers\ManualBookController;
 use App\Http\Controllers\ServiceCenterController;
 use App\Http\Controllers\RentalController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\TradeInController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
