@@ -4,10 +4,12 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\ManualBookController;
+use App\Http\Controllers\ProductRegistrationController;
 use App\Http\Controllers\ServiceCenterController;
 use App\Http\Controllers\RentalController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TradeInController;
+use App\Http\Controllers\UserRegistrationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -61,3 +63,11 @@ Route::get('/store-location', [StoreController::class, 'store_location']);
 
 // Manual Book Download
 Route::get('/manual-book', [ManualBookController::class, 'index']);
+
+//User
+Route::get('/profile', [UserRegistrationController::class, 'index']);
+Route::post('/register', [UserRegistrationController::class, 'store']);
+
+//Product Registration
+Route::get('/product_register', [ProductRegistrationController::class, 'index']);
+Route::post('/product_register', [ProductRegistrationController::class, 'store']);
