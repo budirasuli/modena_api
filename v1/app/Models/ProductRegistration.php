@@ -79,6 +79,12 @@ class ProductRegistration extends Model
         'purchase_date',
         'serial_number',
         'store_name',
+        'data_source',
+        'language_code',
+        'country_code',
+        'product_id',
+        'category_id',
+        'user_id',
     ];
 
     public $appends = [

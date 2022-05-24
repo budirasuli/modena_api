@@ -34,13 +34,15 @@ class ProductRegistrationController extends Controller
                 ];
                 return $response;
             }else{
-                $transaction = DB::table('product_registrations')->select('*')
+                $transaction = ProductRegistration::select('*')
+                ->with('user')
+                ->with('invoice')
+                ->with('warranty')
                 ->where('country_code',$request->country_code)
-                ->where('language_code',$request->language_code)
                 ->get();
                 $response = [
                     'success'=> true,
-                    'message'=> 'List Product',
+                    'message'=> 'List Registration',
                     'data'=> $transaction
                 ];
                 return $response;
@@ -76,19 +78,42 @@ class ProductRegistrationController extends Controller
                     'id_city' => ['required'],
                     'email' => ['required', 'email'],
                     'phone' => ['required','min:8'],
-                    // 'brand' => ['required'],
+                    'product_brand' => ['required'],
                     'product_name' => ['required'],
                     'serial_number' => ['required'],
                     'purchase_date' => ['required', 'date'],
                     'store_name' => ['required'],
-                    'invoice' => ['required', 'mimes:jpg,jpeg,png,svg,doc,docx,pdf'],
-                    'warranty' => ['required', 'mimes:jpg,jpeg,png,svg,doc,docx,pdf'],
+                    'invoice' => ['required', 'mimes:jpg,jpeg,png,svg,pdf'],
+                    'warranty' => ['required', 'mimes:jpg,jpeg,png,svg,pdf'],
+                    
                 ]);
                 DB::beginTransaction();
                 try {
                     $data = new ProductRegistration();
-                    $data->user_id = Auth::id();
-                    $data->fill($request->all());
+                    $insReg  = [
+                        'user_id' => $request->user_id,
+                        'first_name' => $request->first_name,
+                        'last_name' => $request->last_name,
+                        'address' => $request->address,
+                        'province_id' => $request->id_province,
+                        'city_id' => $request->id_city,
+                        'email' => $request->email,
+                        'phone' => $request->phone,
+                        'brand' => $request->product_brand,
+                        'product_id' => $request->product_id,
+                        'category_id' => $request->category_id,
+                        'product_name' => $request->product_name,
+                        'serial_number' => $request->serial_number,
+                        'purchase_date' => $request->purchase_date,
+                        'store_name' => $request->store_name,
+                        'country_code' => $request->country_code,
+                        'language_code' => $request->language_code,
+                        'data_source'          => 'CHAT',                        
+                    ];
+    
+
+                    //$data->user_id = Auth::id();
+                    $data->fill($insReg);
                     $data->save();
                     if ($request->file('invoice')) {
                         $this->storeFile($request->file('invoice'), $data, 'invoice', "invoices/{$data->id}", 'invoice');
@@ -97,16 +122,22 @@ class ProductRegistrationController extends Controller
                         $this->storeFile($request->file('warranty'), $data, 'warranty', "warranties/{$data->id}", 'warranty');
                     }
                     DB::commit();
-                    session()->flash('success', trans('Your information has been saved, please wait for a reply from our customer service'));
-
-                    return redirect()->route('account.product-registration');
+                    $response = [
+                        'success'=> true,
+                        'message'=> 'Your information has been saved, please wait for a reply from our customer service'
+                    
+                    ];
+                    return $response;
 
                 } catch (\Exception $e) {
 
                     DB::rollback();
                     throw $e;
-                    session()->flash('error', trans('Form submit failed'));
-                    return redirect()->back()->withInput();
+                    $response = [
+                        'success'=> false,
+                        'message'=> 'Insert data failed'
+                       
+                    ];
                 }
             }
         }
