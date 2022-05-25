@@ -10,6 +10,7 @@ use App\Http\Controllers\RentalController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TradeInController;
 use App\Http\Controllers\UserRegisterController;
+use App\Http\Controllers\LocationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +42,7 @@ Route::get('/address/{id}', [AddressController::class, 'edit']);
 Route::put('/address/{id}', [AddressController::class, 'update']);
 Route::delete('/address/{id}',[AddressController::class, 'destroy']);
 
+
 // Service
 Route::get('/service', [ServiceCenterController::class, 'index']);
 Route::post('/service', [ServiceCenterController::class, 'store']);
@@ -71,3 +73,12 @@ Route::post('/user_register', [UserRegisterController::class, 'register']);
 //Product Registration
 Route::get('/product_register', [ProductRegistrationController::class, 'index']);
 Route::post('/product_register', [ProductRegistrationController::class, 'store']);
+
+//Location
+Route::get('/province', [LocationController::class, 'index']);
+Route::get('/city', [LocationController::class, 'city']);
+Route::get('/district', [LocationController::class, 'district']);
+Route::get('/subdistrict', [LocationController::class, 'subdistrict']);
+Route::get('/postalcode', [LocationController::class, 'postalcode']);
+
+

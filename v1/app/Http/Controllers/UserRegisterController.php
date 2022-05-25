@@ -49,7 +49,7 @@ class UserRegisterController extends Controller
     {
   
         $request->validate([
-            'email' => ['requred|unique|users|email'],
+            'email' => ['required','email', 'unique'],
             'password' => ['required|min:6'],
             
         ]);
