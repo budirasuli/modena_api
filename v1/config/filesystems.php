@@ -54,9 +54,8 @@ return [
         ],
         'manual' => [
             'driver' => 'local',
-            'root' => storage_path('app/public/images/manual_book/'),
-            'url' => env('APP_URL').'/public/storage/images/manual_book/',
-           // 'url' => env('APP_URL').'/storage',
+            'root' => storage_path('app/media/images/manual_book/'),
+            'url' => env('APP_URL').'/public/storage/media/images/manual_book/',
             'visibility' => 'public',
         ],
         'manual_sftp' => [

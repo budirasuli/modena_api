@@ -52,7 +52,9 @@ class ManualBookController extends Controller
                         'data' => null
                     ];
                 }else{
-                    $file = Storage::disk('manual_sftp')->url($manual_books->path.'/'.$manual_books->file_name);
+                    // $file = Storage::disk('manual_sftp')->url($manual_books->path.'/'.$manual_books->file_name);
+
+                    $file = Storage::disk('manual')->url($request->country_code.'/'.$manual_books->file_name);
 
                     $response = [
                         'success'=> true,
