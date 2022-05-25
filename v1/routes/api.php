@@ -62,7 +62,8 @@ Route::get('/online-store', [StoreController::class, 'online_store']);
 Route::get('/store-location', [StoreController::class, 'store_location']);
 
 // Manual Book Download
-Route::get('/manual-book', [ManualBookController::class, 'index']);
+Route::get('/manual-book/{id}', [ManualBookController::class, 'index']);
+Route::get('/manual-book-download/{id}', [ManualBookController::class, 'download']);
 
 //User
 Route::get('/user_profile', [UserRegisterController::class, 'index']);
