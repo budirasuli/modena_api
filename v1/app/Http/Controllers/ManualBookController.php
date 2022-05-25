@@ -109,7 +109,7 @@ class ManualBookController extends Controller
                         'data' => null
                     ];
                 }else{
-                    $file = Storage::disk('manual_sftp')->get($manual_books->path.'/'.$manual_books->file_name);
+                    $file = Storage::disk('manual')->get($request->country_code.'/'.$manual_books->file_name);
 
                     return Response($file, 200)->header('Content-Type', $manual_books->mime_type);
                 }
