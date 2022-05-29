@@ -4,10 +4,13 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\ManualBookController;
+use App\Http\Controllers\ProductRegistrationController;
 use App\Http\Controllers\ServiceCenterController;
 use App\Http\Controllers\RentalController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TradeInController;
+use App\Http\Controllers\UserRegisterController;
+use App\Http\Controllers\LocationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +42,7 @@ Route::get('/address/{id}', [AddressController::class, 'edit']);
 Route::put('/address/{id}', [AddressController::class, 'update']);
 Route::delete('/address/{id}',[AddressController::class, 'destroy']);
 
+
 // Service
 Route::get('/service', [ServiceCenterController::class, 'index']);
 Route::post('/service', [ServiceCenterController::class, 'store']);
@@ -60,4 +64,22 @@ Route::get('/online-store', [StoreController::class, 'online_store']);
 Route::get('/store-location', [StoreController::class, 'store_location']);
 
 // Manual Book Download
-Route::get('/manual-book', [ManualBookController::class, 'index']);
+Route::get('/manual-book/{id}', [ManualBookController::class, 'index']);
+Route::get('/manual-book-download/{id}', [ManualBookController::class, 'download']);
+
+//User
+Route::get('/user_profile', [UserRegisterController::class, 'index']);
+Route::post('/user_register', [UserRegisterController::class, 'register']);
+
+//Product Registration
+Route::get('/product_register', [ProductRegistrationController::class, 'index']);
+Route::post('/product_register', [ProductRegistrationController::class, 'store']);
+
+//Location
+Route::get('/province', [LocationController::class, 'index']);
+Route::get('/city', [LocationController::class, 'city']);
+Route::get('/district', [LocationController::class, 'district']);
+Route::get('/subdistrict', [LocationController::class, 'subdistrict']);
+Route::get('/postalcode', [LocationController::class, 'postalcode']);
+
+

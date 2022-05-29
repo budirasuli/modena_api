@@ -92,13 +92,21 @@ class FaqController extends Controller
                     $faq = Faq::where('id', $id)
                         ->first();
 
-                    $faq['description'] = strip_tags($faq['description']);
+                    if(empty($faq)){
+                        $response = [
+                            'success'=> false,
+                            'message'=> 'Empty Detail FAQ',
+                            'data' => null
+                        ];
+                    }else{
+                        $faq['description'] = strip_tags($faq['description']);
 
-                    $response = [
-                        'success'=> true,
-                        'message'=> 'Detail FAQ',
-                        'data' => $faq
-                    ];
+                        $response = [
+                            'success'=> true,
+                            'message'=> 'Detail FAQ',
+                            'data' => $faq
+                        ];
+                    }
                 }
             }
         }

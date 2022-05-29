@@ -97,7 +97,7 @@ class ProductMaster extends Model
             return $this->productDetail->description;
         } else {
             return '';
-        }
+        }   
     }
 
     public function getWhatsInTheBoxAttribute()
@@ -106,7 +106,7 @@ class ProductMaster extends Model
             return $this->productDetail->including;
         } else {
             return '';
-        }
+        }      
     }
 
     public function productMasterId()
@@ -127,8 +127,8 @@ class ProductMaster extends Model
     public function productSizingCod()
     {
         return $this->hasOne(
-            ProductSizing::class,
-            'id_product_master_id',
+            ProductSizing::class, 
+            'id_product_master_id', 
             'id_product_master_id'
         )
         ->where('sizing_type', 'cod');
@@ -137,8 +137,8 @@ class ProductMaster extends Model
     public function productSizingSize()
     {
         return $this->hasOne(
-            ProductSizing::class,
-            'id_product_master_id',
+            ProductSizing::class, 
+            'id_product_master_id', 
             'id_product_master_id'
         )
         ->where('sizing_type', 'size');
@@ -147,8 +147,8 @@ class ProductMaster extends Model
     public function productSizingUncod()
     {
         return $this->hasOne(
-            ProductSizing::class,
-            'id_product_master_id',
+            ProductSizing::class, 
+            'id_product_master_id', 
             'id_product_master_id'
         )
         ->where('sizing_type', 'uncod');

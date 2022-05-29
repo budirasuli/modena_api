@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddDataSourceToAndTitleCodeFormContractServiceTable extends Migration
+class AddDataSourceToUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddDataSourceToAndTitleCodeFormContractServiceTable extends Migration
      */
     public function up()
     {
-        Schema::table('form_rental', function (Blueprint $table) {
-            $table->string('data_source', 5)->default('WEB')->after('updated_at');
-            $table->string('title_code', 5)->after('postal_code');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('data_source', 5)->default('WEB')->after('country_code');
         });
     }
 
@@ -26,9 +25,8 @@ class AddDataSourceToAndTitleCodeFormContractServiceTable extends Migration
      */
     public function down()
     {
-        Schema::table('form_contract_rental', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('data_source');
-            $table->dropColumn('title_code');
         });
     }
 }

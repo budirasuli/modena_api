@@ -52,6 +52,23 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
         ],
+        'manual' => [
+            'driver' => 'local',
+            'root' => storage_path('app/media/images/manual_book/'),
+            'url' => env('APP_URL').'/public/storage/media/images/manual_book/',
+            'visibility' => 'public',
+        ],
+        'manual_sftp' => [
+            'driver' => 'sftp',
+            'host' => env('SFTP_HOST'),
+            'username' => env('SFTP_USERNAME'),
+            'password' => env('SFTP_PASSWORD'),
+            // 'root' => '/data/var/www/html/staging/storage/app/public/',
+            'root' => '/data/media/',
+            'url' => env('APP_URL').'/public/storage/',
+            'visibility' => 'public',
+            'permPublic' => 0766,
+        ],
 
     ],
 

@@ -52,7 +52,7 @@ class StoreController extends Controller
     {
         $token = $request->key;
         $country_code = $request->country_code;
-        $longatitude = $request->longatitude;
+        $longitude = $request->longitude;
         $latitude = $request->latitude;
         $search = $request->search;
 
@@ -75,8 +75,8 @@ class StoreController extends Controller
                     'message' => 'Token mismatch'
                 ];
             }else{
-                if(!empty($longatitude) && !empty($latitude)  && !empty($search)){
-                    if(is_numeric($longatitude) && is_numeric($latitude)){
+                if(!empty($longitude) && !empty($latitude)  && !empty($search)){
+                    if(is_numeric($longitude) && is_numeric($latitude)){
                         $storeOfficial = StoreOfficial::select(
                             'store_official.id',
                             'store_official.id_store_category_id',
@@ -90,7 +90,7 @@ class StoreController extends Controller
                             'latitude',
                             'phone_area',
                             'phone',
-                            DB::raw("TRUNCATE((6371 * acos(cos(radians($latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians($longatitude)) + sin(radians($latitude)) * sin(radians(latitude)))), 2) AS distance")
+                            DB::raw("TRUNCATE((6371 * acos(cos(radians($latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians($longitude)) + sin(radians($latitude)) * sin(radians(latitude)))), 2) AS distance")
                         )
                         ->join('store_category', function($query){
                             $query->on('store_category.id_store_category_id', '=', 'store_official.id_store_category_id');
@@ -115,7 +115,7 @@ class StoreController extends Controller
                     }else{
                         $response = [
                             'success' => false,
-                            'message' => 'Latitude and Longatitude must be numeric'
+                            'message' => 'Latitude and longitude must be numeric'
                         ];
                     }
                 }else if(!empty($search)){
@@ -151,8 +151,8 @@ class StoreController extends Controller
                         'message'=> 'List Official Store',
                         'data' => $storeOfficial
                     ];
-                }else if(!empty($longatitude) && !empty($latitude)){
-                    if(is_numeric($longatitude) && is_numeric($latitude)){
+                }else if(!empty($longitude) && !empty($latitude)){
+                    if(is_numeric($longitude) && is_numeric($latitude)){
                         $storeOfficial = StoreOfficial::select(
                             'store_official.id',
                             'store_official.id_store_category_id',
@@ -166,7 +166,7 @@ class StoreController extends Controller
                             'latitude',
                             'phone_area',
                             'phone',
-                            DB::raw("TRUNCATE((6371 * acos(cos(radians($latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians($longatitude)) + sin(radians($latitude)) * sin(radians(latitude)))), 2) AS distance")
+                            DB::raw("TRUNCATE((6371 * acos(cos(radians($latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians($longitude)) + sin(radians($latitude)) * sin(radians(latitude)))), 2) AS distance")
                         )
                         ->join('store_category', function($query){
                             $query->on('store_category.id_store_category_id', '=', 'store_official.id_store_category_id');
@@ -186,7 +186,7 @@ class StoreController extends Controller
                     }else{
                         $response = [
                             'success' => false,
-                            'message' => 'Latitude and Longatitude must be numeric'
+                            'message' => 'Latitude and longitude must be numeric'
                         ];
                     }
                 }
