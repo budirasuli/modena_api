@@ -186,17 +186,45 @@ class LocationController extends Controller
                 ];
                 
             }else{
-               
-                $transaction = MasterPostalCode::select('*')
-                ->where('id_village', $request->id_village)
-                ->get();
+                if($request->postal_code){
+                    $village = MasterPostalCode::select('*')
+                    ->where('postal_code', $request->postal_code)
+                    ->first();
 
-                $response = [
-                    'success'=> true,
-                    'message'=> 'Postal Code',
-                    'data' => $transaction
-                ];
-                
+                    $district = DB::table('master_village')
+                    ->select('id_village','id_district',
+                    DB::raw("(SELECT DISTINCT(id_city) FROM master_district WHERE id_district=master_village.id_district) as id_city")
+                    )
+                    ->where('id_village', $village->id_village)
+                    ->first();
+                    
+                    $province = MasterCity::select('*')
+                    ->where('id_city', $district->id_city)
+                    ->first();
+
+                        $postal_code    = $village->postal_code;
+                        $id_village     = $district->id_village;
+                        $id_district    = $district->id_district;
+                        $id_city        = $district->id_city;
+                        $id_province    = $province->id_province;
+                    
+                        $response = [
+                            'success'=> true,
+                            'message'=> 'Postal Code',
+                            'data' => 
+                            [$postal_code, $id_village, $id_district, $id_city, $id_province]
+                        ];  
+                    }else{
+                    $transaction = MasterPostalCode::select('*')
+                    ->where('id_village', $request->id_village)
+                    ->get();
+    
+                    $response = [
+                        'success'=> true,
+                        'message'=> 'Postal Code',
+                        'data' => $transaction
+                    ];
+                }
             }
         }
         return $response;

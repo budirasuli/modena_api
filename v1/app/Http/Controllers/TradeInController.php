@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\FormTradeIn;
 use App\Models\FormTradeInProductInformation;
+use App\Models\MasterCity;
+use App\Models\MasterPostalCode;
+
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -122,15 +126,15 @@ class TradeInController extends Controller
                 'email'       => 'required|email',
                 'phone'       => 'required|min:10|numeric',
                 'address'     => 'required|min:8',
-                'id_province' => 'required',
-                'id_city'     => 'required',
+                // 'id_province' => 'required',
+                // 'id_city'     => 'required',
                 'declare'     => 'required',
                 ];
 
                 if($request->country_code == 'id') {
-                $rules ['id_district']    = 'required';
-                $rules ['id_subdistrict']     = 'required';
-                $rules ['id_postal_code'] = 'required';
+                // $rules ['id_district']    = 'required';
+                // $rules ['id_subdistrict']     = 'required';
+                // $rules ['id_postal_code'] = 'required';
                 }
 
                 foreach ($request->product_info as $key => $input) {
@@ -155,6 +159,30 @@ class TradeInController extends Controller
                     'regex'    => __('This field contain number')
                 ];
 
+                //id location from postalcode
+
+                $village = MasterPostalCode::select('*')
+                ->where('postal_code', $request->postal_code)
+                ->first();
+
+                $district = DB::table('master_village')
+                ->select('id_village','id_district',
+                DB::raw("(SELECT DISTINCT(id_city) FROM master_district WHERE id_district=master_village.id_district) as id_city")
+                )
+                ->where('id_village', $village->id_village)
+                ->first();
+                
+                $province = MasterCity::select('*')
+                ->where('id_city', $district->id_city)
+                ->first();
+
+                   
+                    $id_village     = $district->id_village;
+                    $id_district    = $district->id_district;
+                    $id_city        = $district->id_city;
+                    $id_province    = $province->id_province;
+                    $id_postal_code = $village->id;
+
                 $attributes = [];
 
                 $request->validate($rules, $messages, $attributes);
@@ -169,10 +197,10 @@ class TradeInController extends Controller
                         'csms_address_id'  => $request->csms_address_id,
                         'csms_phone_id'    => $request->csms_phone_id,
                         'country_code'     => $request->country_code,
-                        'id_province'      => ($request->id_province) ? $request->id_province : null,
-                        'id_city'          => ($request->id_city) ? $request->id_city : null,
-                        'id_district'      => ($request->id_district) ? $request->id_district : null,
-                        'id_village'       => ($request->id_subdistrict) ? $request->id_subdistrict : null,
+                        'id_province'      => ($id_province) ? $id_province : null,
+                        'id_city'          => ($id_city) ? $id_city : null,
+                        'id_district'      => ($id_district) ? $id_district : null,
+                        'id_village'       => ($id_village) ? $id_village : null,
                         'postal_code'      => ($request->postal_code) ? $request->postal_code : null,
                         'title_code'       => $request->title_code,
                         'name'             => $request->name,
