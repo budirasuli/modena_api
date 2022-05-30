@@ -11,6 +11,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\TradeInController;
 use App\Http\Controllers\UserRegisterController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\BrandController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -67,19 +68,20 @@ Route::get('/store-location', [StoreController::class, 'store_location']);
 Route::get('/manual-book/{id}', [ManualBookController::class, 'index']);
 Route::get('/manual-book-download/{id}', [ManualBookController::class, 'download']);
 
-//User
+// User
 Route::get('/user_profile', [UserRegisterController::class, 'index']);
 Route::post('/user_register', [UserRegisterController::class, 'register']);
 
-//Product Registration
+// Product Registration
 Route::get('/product_register', [ProductRegistrationController::class, 'index']);
 Route::post('/product_register', [ProductRegistrationController::class, 'store']);
 
-//Location
+// Location
 Route::get('/province', [LocationController::class, 'index']);
 Route::get('/city', [LocationController::class, 'city']);
 Route::get('/district', [LocationController::class, 'district']);
 Route::get('/subdistrict', [LocationController::class, 'subdistrict']);
 Route::get('/postalcode', [LocationController::class, 'postalcode']);
 
-
+// Brand
+Route::get('/brand', [BrandController::class, 'index']);
