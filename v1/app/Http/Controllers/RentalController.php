@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Mail;
 
 use App\Models\Rental;
 use App\Models\RentalProduct;
+use App\Models\MasterCity;
+use App\Models\MasterPostalCode;
 
 class RentalController extends Controller
 {
@@ -121,16 +123,40 @@ class RentalController extends Controller
                     'title_code'           => 'required',
                     'name'                 => 'required|regex:/^[\pL\s\-]+$/u',
                     'address'              => 'required',
-                    'id_province'          => 'required',
-                    'id_city'              => 'required',
+                    // 'id_province'          => 'required',
+                    // 'id_city'              => 'required',
                     
                 ];
 
                 if($request->country_code == 'id') {
-                    $rules ['id_district']    = 'required';
-                    $rules ['id_subdistrict'] = 'required';
+                    // $rules ['id_district']    = 'required';
+                    // $rules ['id_subdistrict'] = 'required';
                     $rules ['postal_code']    = 'required';
                 }
+
+                //id location from postalcode
+
+                $village = MasterPostalCode::select('*')
+                ->where('postal_code', $request->postal_code)
+                ->first();
+
+                $district = DB::table('master_village')
+                ->select('id_village','id_district',
+                DB::raw("(SELECT DISTINCT(id_city) FROM master_district WHERE id_district=master_village.id_district) as id_city")
+                )
+                ->where('id_village', $village->id_village)
+                ->first();
+                
+                $province = MasterCity::select('*')
+                ->where('id_city', $district->id_city)
+                ->first();
+
+                   
+                    $id_village     = $district->id_village;
+                    $id_district    = $district->id_district;
+                    $id_city        = $district->id_city;
+                    $id_province    = $province->id_province;
+
 
                 $messages = [
                     'required' => __('Please fill in this field'),
@@ -152,10 +178,16 @@ class RentalController extends Controller
                     'csms_address_id'  => $request->csms_address_id,
                     'csms_phone_id'    => $request->csms_phone_id,
                     'country_code'     => $request->country_code,
-                    'id_province'      => ($request->id_province) ? $request->id_province : null,
-                    'id_city'          => ($request->id_city) ? $request->id_city : null,
-                    'id_district'      => ($request->id_district) ? $request->id_district : null,
-                    'id_village'       => ($request->id_subdistrict) ? $request->id_subdistrict : null,
+                    // 'id_province'      => ($request->id_province) ? $request->id_province : null,
+                    // 'id_city'          => ($request->id_city) ? $request->id_city : null,
+                    // 'id_district'      => ($request->id_district) ? $request->id_district : null,
+                    // 'id_village'       => ($request->id_subdistrict) ? $request->id_subdistrict : null,
+
+                    'id_province'      => ($id_province) ? $id_province : null,
+                    'id_city'          => ($id_city) ? $id_city : null,
+                    'id_district'      => ($id_district) ? $id_district : null,
+                    'id_village'       => ($id_village) ? $id_village : null,
+                    
                     'postal_code'      => ($request->postal_code) ? $request->postal_code : null,
                     'title_code'       => $request->title_code,
                     'name'             => $request->name,

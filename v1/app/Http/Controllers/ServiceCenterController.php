@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 
 use App\Model\FormServiceCenter;
+use App\Models\MasterCity;
+use App\Models\MasterPostalCode;
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -166,8 +169,8 @@ class ServiceCenterController extends Controller
                 $rules = [
                     'country_code'      => 'required',
                     'email'              => 'required|email',
-                    'id_province'        => 'required',
-                    'id_city'            => 'required',
+                    // 'id_province'        => 'required',
+                    // 'id_city'            => 'required',
                     'phone'       => 'required|min:10|numeric',
                     'title_code'         => 'required',
                     'first_name'         => 'required|regex:/^[\pL\s\-]+$/u',
@@ -188,8 +191,8 @@ class ServiceCenterController extends Controller
                 ];
 
                 if($request->country_code == 'id') {
-                   $rules ['id_district']    = 'required';
-                   $rules ['id_subdistrict'] = 'required';
+                //    $rules ['id_district']    = 'required';
+                //    $rules ['id_subdistrict'] = 'required';
                    $rules ['postal_code']    = 'required';
                 }
     
@@ -198,6 +201,29 @@ class ServiceCenterController extends Controller
                     'email'    => "Please include an @ in the email address. '" . $request->email . "' is missing an '@'",
                     'regex'    => __('This field contain number')
                 ];
+
+                //id location from postalcode
+
+                $village = MasterPostalCode::select('*')
+                ->where('postal_code', $request->postal_code)
+                ->first();
+
+                $district = DB::table('master_village')
+                ->select('id_village','id_district',
+                DB::raw("(SELECT DISTINCT(id_city) FROM master_district WHERE id_district=master_village.id_district) as id_city")
+                )
+                ->where('id_village', $village->id_village)
+                ->first();
+                
+                $province = MasterCity::select('*')
+                ->where('id_city', $district->id_city)
+                ->first();
+
+                   
+                    $id_village     = $district->id_village;
+                    $id_district    = $district->id_district;
+                    $id_city        = $district->id_city;
+                    $id_province    = $province->id_province;
     
                 $attributes = [];
     
@@ -226,10 +252,10 @@ class ServiceCenterController extends Controller
                         'serial_number'      => ($request->serial_number) ? $request->serial_number : null,
                         'product_name'      => ($request->product_name) ? $request->product_name : null,
                         'country_code'       => $request->country_code,
-                        'id_province'        => ($request->id_province) ? $request->id_province : null,
-                        'id_city'            => ($request->id_city) ? $request->id_city : null,
-                        'id_district'        => ($request->id_district) ? $request->id_district : null,
-                        'id_village'         => ($request->id_subdistrict) ? $request->id_subdistrict : null,
+                        'id_province'        => ($id_province) ? $id_province : null,
+                        'id_city'            => ($id_city) ? $id_city : null,
+                        'id_district'        => ($id_district) ? $id_district : null,
+                        'id_village'         => ($id_village) ? $id_village : null,
                         'postal_code'        => ($request->postal_code) ? $request->postal_code : null,
                         'phone'              => $request->phone,
                         'email'              => $request->email,
