@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\ProductRegistration;
 use Illuminate\Support\Facades\Storage;
+
+use App\Models\ProductRegistration;
+use App\Models\MasterCity;
+use App\Models\MasterPostalCode;
 
 class ProductRegistrationController extends Controller
 {
@@ -74,8 +77,8 @@ class ProductRegistrationController extends Controller
                     'first_name' => ['required'],
                     'last_name' => ['required'],
                     'address' => ['required'],
-                    'id_province' => ['required'],
-                    'id_city' => ['required'],
+                    // 'id_province' => ['required'],
+                    // 'id_city' => ['required'],
                     'email' => ['required', 'email'],
                     'phone' => ['required','min:8'],
                     'product_brand' => ['required'],
@@ -89,6 +92,30 @@ class ProductRegistrationController extends Controller
                 ]);
                 DB::beginTransaction();
                 try {
+
+                    //id location from postalcode
+
+                    $village = MasterPostalCode::select('*')
+                    ->where('postal_code', $request->postal_code)
+                    ->first();
+
+                    $district = DB::table('master_village')
+                    ->select('id_village','id_district',
+                    DB::raw("(SELECT DISTINCT(id_city) FROM master_district WHERE id_district=master_village.id_district) as id_city")
+                    )
+                    ->where('id_village', $village->id_village)
+                    ->first();
+                    
+                    $province = MasterCity::select('*')
+                    ->where('id_city', $district->id_city)
+                    ->first();
+
+                    
+                        $id_village     = $district->id_village;
+                        $id_district    = $district->id_district;
+                        $id_city        = $district->id_city;
+                        $id_province    = $province->id_province;
+
                     $data = new ProductRegistration();
                     $insReg  = [
                         'user_id' => $request->user_id,
