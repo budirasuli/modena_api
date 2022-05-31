@@ -189,6 +189,11 @@ class StoreController extends Controller
                             'message' => 'Latitude and longitude must be numeric'
                         ];
                     }
+                }else{
+                    $response = [
+                        'success' => false,
+                        'message' => 'Filter cannot be null'
+                    ];
                 }
             }
         }
