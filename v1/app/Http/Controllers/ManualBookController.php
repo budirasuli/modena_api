@@ -28,6 +28,9 @@ class ManualBookController extends Controller
                     'message'=> 'Token mismatch'
                 ];
             }else{
+                $explodeId = explode('.', $id);
+                $id = $explodeId[0];
+
                 $manual_books = ProductMaster::select(
                         'product_master.*',
                         'media.id as media_id',
@@ -42,7 +45,7 @@ class ManualBookController extends Controller
                     ->whereNull('product_master.deleted_at')
                     ->where('product_master.country_code', "=", $request->country_code)
                     ->whereNotNull('media.mediable_id')
-                    ->where('product_master.id', $id)
+                    ->where('product_master.sku', $id)
                     ->first();
 
                 if(empty($manual_books)){
@@ -85,6 +88,9 @@ class ManualBookController extends Controller
                     'message'=> 'Token mismatch'
                 ];
             }else{
+                $explodeId = explode('.', $id);
+                $id = $explodeId[0];
+
                 $manual_books = ProductMaster::select(
                         'product_master.*',
                         'media.id as media_id',
@@ -100,7 +106,7 @@ class ManualBookController extends Controller
                     ->whereNull('product_master.deleted_at')
                     ->where('product_master.country_code', "=", $request->country_code)
                     ->whereNotNull('media.mediable_id')
-                    ->where('product_master.id', $id)
+                    ->where('product_master.sku', $id)
                     ->first();
 
                 if(empty($manual_books)){
