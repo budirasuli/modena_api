@@ -225,15 +225,15 @@ class TradeInController extends Controller
 						$fileName = substr($url, strrpos($url, '/') + 1);
 						$image = file_get_contents($info['image']);
 
-						file_put_contents(public_path('temp/'.$fileName), $image);
+						file_put_contents(storage_path('temp/'.$fileName), $image);
 
-						$file = File::get(public_path('temp/'.$fileName));
+						$file = File::get(storage_path('temp/'.$fileName));
 
                         if (!empty($image)) {
-                            $this->storeFile($image, $dataInfo, 'image', "images/form_trade_in/{$idInsTrd}/{$idInsInfo}", 'image', public_path('temp/'.$fileName));
+                            $this->storeFile($image, $dataInfo, 'image', "images/form_trade_in/{$idInsTrd}/{$idInsInfo}", 'image', storage_path('temp/'.$fileName));
                         }
 
-						unlink(public_path('temp/'.$fileName));
+						unlink(storage_path('temp/'.$fileName));
                     }
 
                     $tradeInData = FormTradeIn::find($idInsTrd);
