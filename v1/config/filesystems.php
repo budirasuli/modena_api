@@ -57,7 +57,7 @@ return [
             'url' => env('APP_URL').'/public/storage/media/images/manual_book/',
             'visibility' => 'public',
         ],
-        'manual_sftp' => [
+        'sftp' => [
             'driver' => 'sftp',
             'host' => env('SFTP_HOST'),
             'username' => env('SFTP_USERNAME'),

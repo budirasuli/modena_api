@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
+use File;
 
 class TradeInController extends Controller
 {
@@ -30,7 +31,7 @@ class TradeInController extends Controller
                 'message'=> 'Token cannot be null'
             ];
             return $response;
-            
+
         }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
             if (!$api_key){
@@ -38,7 +39,7 @@ class TradeInController extends Controller
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                return $response; 
+                return $response;
             }else{
                 if($request->phone){
                     $rental = FormTradeIn::select('*')
@@ -52,10 +53,10 @@ class TradeInController extends Controller
                         'message'=> 'List Trade In By Phone',
                         'data'=> $rental
                     ];
-                    return $response; 
+                    return $response;
 
                 }else if($request->email){
-                
+
                     // Rental List by email
                     $rental = FormTradeIn::select('*')
                         ->with('formTradeInProductInformation')
@@ -69,9 +70,9 @@ class TradeInController extends Controller
                         'message'=> 'List Trade In By Email',
                         'data'=> $rental
                     ];
-                    return $response; 
+                    return $response;
                 }else{
-                    
+
                     // Rental List
                     $rental = FormTradeIn::select('*')
                     ->with('formTradeInProductInformation')
@@ -84,57 +85,48 @@ class TradeInController extends Controller
                         'message'=> 'List Trade In',
                         'data'=> $rental
                     ];
-                    return $response; 
+                    return $response;
                 }
             }
         }
     }
 
-   
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $token = $request->key;
-        //dd($token);
+
         if (is_null($token) OR empty($token) ){
             $response = [
                 'success'=> false,
                 'message'=> 'Token cannot be null'
             ];
             return $response;
-            
-        }else
-        {
+        }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
+
             if (!$api_key){
                 $response = [
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                return $response; 
-            }else
-            {
+                return $response;
+            }else{
                 $rules = [
-                'title_code'  => 'required',
-                'name'        => 'required|regex:/^[\pL\s\-]+$/u',
-                'email'       => 'required|email',
-                'phone'       => 'required|min:10|numeric',
-                'address'     => 'required|min:8',
-                // 'id_province' => 'required',
-                // 'id_city'     => 'required',
-                'declare'     => 'required',
+                    'title_code'  => 'required',
+                    'name'        => 'required|regex:/^[\pL\s\-]+$/u',
+                    'email'       => 'required|email',
+                    'phone'       => 'required|min:10|numeric',
+                    'address'     => 'required|min:8',
+                    // 'id_province' => 'required',
+                    // 'id_city'     => 'required',
+                    'declare'     => 'required',
+                    'postal_code' => 'required'
                 ];
 
                 if($request->country_code == 'id') {
-                // $rules ['id_district']    = 'required';
-                // $rules ['id_subdistrict']     = 'required';
-                // $rules ['id_postal_code'] = 'required';
+                    // $rules ['id_district']    = 'required';
+                    // $rules ['id_subdistrict']     = 'required';
+                    // $rules ['id_postal_code'] = 'required';
                 }
 
                 foreach ($request->product_info as $key => $input) {
@@ -142,14 +134,14 @@ class TradeInController extends Controller
                     $rules["product_info.$key.brand"]       = ['required'];
                     $rules["product_info.$key.id_category"] = ['required'];
                     $rules["product_info.$key.age_product"] = ['required'];
-                    $rules["product_info.$key.image"]       = ['required','file','image','max:250'];
+                    $rules["product_info.$key.image"]       = ['required'];
+                    // $rules["product_info.$key.image"]       = ['required','file','image','max:250'];
                     // $rules["product_info.$key.requests.*"]  = ['required'];
 
-
                     $attributes["product_info.$key.brand"]       = "Brand";
-                    $attributes["product_info.$key.id_category"] = "Category";            
-                    $attributes["product_info.$key.age_product"] = "Age Product";            
-                    $attributes["product_info.$key.image"]       = "Image";            
+                    $attributes["product_info.$key.id_category"] = "Category";
+                    $attributes["product_info.$key.age_product"] = "Age Product";
+                    $attributes["product_info.$key.image"]       = "Image";
                     // $attributes["product_info.$key.requests.*"]  = "Request";
                 }
 
@@ -171,12 +163,12 @@ class TradeInController extends Controller
                 )
                 ->where('id_village', $village->id_village)
                 ->first();
-                
+
                 $province = MasterCity::select('*')
                 ->where('id_city', $district->id_city)
                 ->first();
 
-                   
+
                     $id_village     = $district->id_village;
                     $id_district    = $district->id_district;
                     $id_city        = $district->id_city;
@@ -229,15 +221,19 @@ class TradeInController extends Controller
 
                         $idInsInfo = $dataInfo->id;
 
-                        if ($request->hasFile("product_info.$key.image")) {
-                            $this->storeFile(
-                                $request->file("product_info.$key.image"),
-                                $dataInfo, 
-                                'image',
-                                "images/form_trade_in/{$idInsTrd}/{$idInsInfo}",
-                                'image'
-                            );
+						$url = $info['image'];
+						$fileName = substr($url, strrpos($url, '/') + 1);
+						$image = file_get_contents($info['image']);
+
+						file_put_contents(public_path('temp/'.$fileName), $image);
+
+						$file = File::get(public_path('temp/'.$fileName));
+
+                        if (!empty($image)) {
+                            $this->storeFile($image, $dataInfo, 'image', "images/form_trade_in/{$idInsTrd}/{$idInsInfo}", 'image', public_path('temp/'.$fileName));
                         }
+
+						unlink(public_path('temp/'.$fileName));
                     }
 
                     $tradeInData = FormTradeIn::find($idInsTrd);
@@ -247,8 +243,8 @@ class TradeInController extends Controller
                     //     ->with('formTradeInProductInformation.image')
                     //     ->where('id',$idInsTrd)
                     //     ->first();
-                        
-                        
+
+
 
                     // Mail::to(
                     //     env(
@@ -272,7 +268,7 @@ class TradeInController extends Controller
                         'success'=> true,
                         'message'=> 'Your information has been saved, please wait for a reply from our customer service !'
                     ];
-                    return $response; 
+                    return $response;
 
                 } catch (\Exception $e) {
                     DB::rollback();
@@ -282,25 +278,28 @@ class TradeInController extends Controller
                         'message'=> 'Form Submit failed !'
                     ];
                     return $response;
-                }    
+                }
             }
         }
     }
-    protected function storeFile($file, $model, $relation, $path, $content_type = null)
+    protected function storeFile($file, $model, $relation, $path, $content_type = null, $fileTempSource)
     {
         $document = $file;
-        $fileName = $document->hashName();
+		$mimeType = File::mimeType($fileTempSource);
+		$extension = File::extension($fileTempSource);
+		$size = File::size($fileTempSource);
+		$name = File::name($fileTempSource);
 
         $data = [
             'content_type' => $content_type,
-            'name'         => $document->getClientOriginalName(),
+            'name'         => $name.'.'.$extension,
             'path'         => $path,
-            'file_name'    => $fileName,
-            'type'         => $document->getClientOriginalExtension() === 'pdf' ? 'pdf' : 'image',
-            'mime_type'    => $document->getMimeType(),
+            'file_name'    => $name.'.'.$extension,
+            'type'         => 'image',
+            'mime_type'    => $mimeType,
             'disk'         => config('filesystems.default'),
-            'extension'    => $document->getClientOriginalExtension(),
-            'size'         => $document->getSize(),
+            'extension'    => $extension,
+            'size'         => $size,
         ];
 
         if ($model->$relation) {
@@ -309,6 +308,6 @@ class TradeInController extends Controller
             $model->$relation()->create($data);
         }
 
-        Storage::putFileAs("$path/", $document, $fileName, 'public');
+        Storage::disk('sftp')->put("$path/".$name.'.'.$extension, $document);
     }
 }
