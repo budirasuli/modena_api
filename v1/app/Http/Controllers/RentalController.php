@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
-
 use App\Models\Rental;
 use App\Models\RentalProduct;
 use App\Models\MasterCity;
@@ -14,107 +13,85 @@ use App\Models\MasterPostalCode;
 
 class RentalController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $token = $request->key;
-        //dd($token);
+
         if (is_null($token) OR empty($token) ){
             $response = [
                 'success'=> false,
                 'message'=> 'Token cannot be null'
             ];
-            return $response;
-            
         }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
+
             if (!$api_key){
                 $response = [
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                return $response; 
             }else{
-                if($request->phone){
-                    $rental = Rental::select('*')
-                        ->with('product')
-                        ->where('country_code',$request->country_code)
-                        ->where('phone',$request->phone)
-                        ->get();
+				if(!empty($request->phone)){
+					if($request->email){
+						$rental = Rental::select('*')
+							->with('product')
+							->where('country_code', $request->country_code)
+							->where('phone', $request->phone)
+							->Orwhere('email', $request->email)
+							->get();
 
-                    $response = [
-                        'success'=> true,
-                        'message'=> 'List Rental By Phone',
-                        'data'=> $rental
+						$response = [
+							'success'=> true,
+							'message'=> 'List Rental By Phone',
+							'data'=> $rental
+						];
+					}else{
+						$rental = Rental::select('*')
+							->with('product')
+							->where('country_code', $request->country_code)
+							->where('phone', $request->phone)
+							->get();
+
+						$response = [
+							'success'=> true,
+							'message'=> 'List Rental By Phone',
+							'data'=> $rental
+						];
+					}
+				}else{
+					$response = [
+                        'success' => false,
+                        'message' => 'Filter cannot be null'
                     ];
-                    return $response; 
-
-                }else if($request->email){
-                
-                    // Rental List by email
-                    $rental = Rental::select('*')
-                        ->with('product')
-                        ->where('country_code',$request->country_code)
-                        ->where('email',$request->email)
-                        ->get();
-
-
-                    $response = [
-                        'success'=> true,
-                        'message'=> 'List Rental By Email',
-                        'data'=> $rental
-                    ];
-                    return $response; 
-                }else{
-                    
-                    // Rental List
-                    $rental = Rental::select('*')
-                    ->with('product')
-                    ->where('country_code',$request->country_code)
-                    ->get();
-
-                    $response = [
-                        'success'=> true,
-                        'message'=> 'List Rental',
-                        'data'=> $rental
-                    ];
-                    return $response; 
-                }
+				}
             }
         }
+
+		return $response;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $token = $request->key;
-        //dd($token);
+
         if (is_null($token) OR empty($token) ){
             $response = [
                 'success'=> false,
                 'message'=> 'Token cannot be null'
             ];
             return $response;
-            
+
         }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
+
             if (!$api_key){
                 $response = [
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                return $response; 
+                return $response;
             }else{
-                $rules      = [           
+                $rules      = [
                     'csms_customer_id'     => 'required',
                     'csms_address_id'      => 'required',
                     'csms_phone_id'        => 'required',
@@ -125,7 +102,7 @@ class RentalController extends Controller
                     'address'              => 'required',
                     // 'id_province'          => 'required',
                     // 'id_city'              => 'required',
-                    
+
                 ];
 
                 if($request->country_code == 'id') {
@@ -146,12 +123,12 @@ class RentalController extends Controller
                 )
                 ->where('id_village', $village->id_village)
                 ->first();
-                
+
                 $province = MasterCity::select('*')
                 ->where('id_city', $district->id_city)
                 ->first();
 
-                   
+
                     $id_village     = $district->id_village;
                     $id_district    = $district->id_district;
                     $id_city        = $district->id_city;
@@ -187,7 +164,7 @@ class RentalController extends Controller
                     'id_city'          => ($id_city) ? $id_city : null,
                     'id_district'      => ($id_district) ? $id_district : null,
                     'id_village'       => ($id_village) ? $id_village : null,
-                    
+
                     'postal_code'      => ($request->postal_code) ? $request->postal_code : null,
                     'title_code'       => $request->title_code,
                     'name'             => $request->name,
@@ -195,12 +172,12 @@ class RentalController extends Controller
                     'email'            => $request->email,
                     'address'          => $request->address,
                     'data_source'          => 'CHAT',
-                    
+
                 ];
 
                 $dataRent->fill($insRent)->save();
                 $idInsRent = $dataRent->id;
-            
+
                 foreach ($request->product_detail as $key => $product) {
                     $dataProduct = new RentalProduct();
 
