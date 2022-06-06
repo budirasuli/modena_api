@@ -16,79 +16,63 @@ use File;
 
 class TradeInController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $token = $request->key;
-        //dd($token);
+
         if (is_null($token) OR empty($token) ){
             $response = [
                 'success'=> false,
                 'message'=> 'Token cannot be null'
             ];
-            return $response;
-
         }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
+
             if (!$api_key){
                 $response = [
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                return $response;
             }else{
-                if($request->phone){
-                    $rental = FormTradeIn::select('*')
-                        ->with('formTradeInProductInformation')
-                        ->where('country_code',$request->country_code)
-                        ->where('phone',$request->phone)
-                        ->get();
+				if(!empty($request->phone)){
+					if($request->email){
+						$rental = FormTradeIn::select('*')
+							->with('formTradeInProductInformation')
+							->with('formTradeInProductInformation.image')
+							->where('country_code', $request->country_code)
+							->where('phone', $request->phone)
+							->orWhere('email', $request->email)
+							->get();
 
-                    $response = [
-                        'success'=> true,
-                        'message'=> 'List Trade In By Phone',
-                        'data'=> $rental
+						$response = [
+							'success'=> true,
+							'message'=> 'List Trade In',
+							'data'=> $rental
+						];
+					}else{
+						$rental = FormTradeIn::select('*')
+							->with('formTradeInProductInformation')
+							->with('formTradeInProductInformation.image')
+							->where('country_code', $request->country_code)
+							->where('phone', $request->phone)
+							->get();
+
+						$response = [
+							'success'=> true,
+							'message'=> 'List Trade In',
+							'data'=> $rental
+						];
+					}
+				}else{
+					$response = [
+                        'success' => false,
+                        'message' => 'Filter cannot be null'
                     ];
-                    return $response;
-
-                }else if($request->email){
-
-                    // Rental List by email
-                    $rental = FormTradeIn::select('*')
-                        ->with('formTradeInProductInformation')
-                        ->where('country_code',$request->country_code)
-                        ->where('email',$request->email)
-                        ->get();
-
-
-                    $response = [
-                        'success'=> true,
-                        'message'=> 'List Trade In By Email',
-                        'data'=> $rental
-                    ];
-                    return $response;
-                }else{
-
-                    // Rental List
-                    $rental = FormTradeIn::select('*')
-                    ->with('formTradeInProductInformation')
-                    ->with('formTradeInProductInformation.image')
-                    ->where('country_code',$request->country_code)
-                    ->get();
-
-                    $response = [
-                        'success'=> true,
-                        'message'=> 'List Trade In',
-                        'data'=> $rental
-                    ];
-                    return $response;
-                }
+				}
             }
         }
+
+		return $response;
     }
 
     public function store(Request $request)
@@ -112,21 +96,16 @@ class TradeInController extends Controller
                 return $response;
             }else{
                 $rules = [
-                    'title_code'  => 'required',
+                    // 'title_code'  => 'required',
                     'name'        => 'required|regex:/^[\pL\s\-]+$/u',
                     'email'       => 'required|email',
                     'phone'       => 'required|min:10|numeric',
                     'address'     => 'required|min:8',
-                    // 'id_province' => 'required',
-                    // 'id_city'     => 'required',
-                    'declare'     => 'required',
-                    'postal_code' => 'required'
+                    'declare'     => 'required'
                 ];
 
                 if($request->country_code == 'id') {
-                    // $rules ['id_district']    = 'required';
-                    // $rules ['id_subdistrict']     = 'required';
-                    // $rules ['id_postal_code'] = 'required';
+                    $rules ['postal_code'] = 'required';
                 }
 
                 foreach ($request->product_info as $key => $input) {
@@ -135,14 +114,11 @@ class TradeInController extends Controller
                     $rules["product_info.$key.id_category"] = ['required'];
                     $rules["product_info.$key.age_product"] = ['required'];
                     $rules["product_info.$key.image"]       = ['required'];
-                    // $rules["product_info.$key.image"]       = ['required','file','image','max:250'];
-                    // $rules["product_info.$key.requests.*"]  = ['required'];
 
                     $attributes["product_info.$key.brand"]       = "Brand";
                     $attributes["product_info.$key.id_category"] = "Category";
                     $attributes["product_info.$key.age_product"] = "Age Product";
                     $attributes["product_info.$key.image"]       = "Image";
-                    // $attributes["product_info.$key.requests.*"]  = "Request";
                 }
 
                 $messages = [
@@ -152,28 +128,28 @@ class TradeInController extends Controller
                 ];
 
                 //id location from postalcode
-
                 $village = MasterPostalCode::select('*')
-                ->where('postal_code', $request->postal_code)
-                ->first();
+					->where('postal_code', $request->postal_code)
+					->first();
 
                 $district = DB::table('master_village')
-                ->select('id_village','id_district',
-                DB::raw("(SELECT DISTINCT(id_city) FROM master_district WHERE id_district=master_village.id_district) as id_city")
-                )
-                ->where('id_village', $village->id_village)
-                ->first();
+                	->select(
+						'id_village','id_district',
+                		DB::raw("(SELECT DISTINCT(id_city) FROM master_district WHERE id_district=master_village.id_district) as id_city")
+                	)
+                	->where('id_village', $village->id_village)
+                	->first();
 
                 $province = MasterCity::select('*')
-                ->where('id_city', $district->id_city)
-                ->first();
+                	->where('id_city', $district->id_city)
+                	->first();
 
 
-                    $id_village     = $district->id_village;
-                    $id_district    = $district->id_district;
-                    $id_city        = $district->id_city;
-                    $id_province    = $province->id_province;
-                    $id_postal_code = $village->id;
+				$id_village     = $district->id_village;
+				$id_district    = $district->id_district;
+				$id_city        = $district->id_city;
+				$id_province    = $province->id_province;
+				$id_postal_code = $village->id;
 
                 $attributes = [];
 
@@ -194,7 +170,7 @@ class TradeInController extends Controller
                         'id_district'      => ($id_district) ? $id_district : null,
                         'id_village'       => ($id_village) ? $id_village : null,
                         'postal_code'      => ($request->postal_code) ? $request->postal_code : null,
-                        'title_code'       => $request->title_code,
+                        'title_code'       => 'Mr',
                         'name'             => $request->name,
                         'phone'            => $request->phone,
                         'email'            => $request->email,
@@ -231,9 +207,9 @@ class TradeInController extends Controller
 
                         if (!empty($image)) {
                             $this->storeFile($image, $dataInfo, 'image', "images/form_trade_in/{$idInsTrd}/{$idInsInfo}", 'image', storage_path('temp/'.$fileName));
-                        }
 
-						unlink(storage_path('temp/'.$fileName));
+							unlink(storage_path('temp/'.$fileName));
+                        }
                     }
 
                     $tradeInData = FormTradeIn::find($idInsTrd);

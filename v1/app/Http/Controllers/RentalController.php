@@ -99,15 +99,10 @@ class RentalController extends Controller
                     'phone'                => 'required|min:10|numeric',
                     'title_code'           => 'required',
                     'name'                 => 'required|regex:/^[\pL\s\-]+$/u',
-                    'address'              => 'required',
-                    // 'id_province'          => 'required',
-                    // 'id_city'              => 'required',
-
+                    'address'              => 'required'
                 ];
 
                 if($request->country_code == 'id') {
-                    // $rules ['id_district']    = 'required';
-                    // $rules ['id_subdistrict'] = 'required';
                     $rules ['postal_code']    = 'required';
                 }
 
@@ -127,7 +122,6 @@ class RentalController extends Controller
                 $province = MasterCity::select('*')
                 ->where('id_city', $district->id_city)
                 ->first();
-
 
                     $id_village     = $district->id_village;
                     $id_district    = $district->id_district;
@@ -211,14 +205,13 @@ class RentalController extends Controller
                 //     }
                 // }
 
-
                 $response = [
                     'success'=> true,
                     'message'=> 'Your rental request form has been submitted'
                 ];
 
                 return $response;
-                 }
             }
+        }
     }
 }
