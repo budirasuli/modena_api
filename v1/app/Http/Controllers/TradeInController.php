@@ -7,7 +7,6 @@ use App\Models\FormTradeInProductInformation;
 use App\Models\MasterCity;
 use App\Models\MasterPostalCode;
 
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;

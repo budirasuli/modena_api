@@ -12,21 +12,15 @@ use App\Models\MasterPostalCode;
 
 class ProductRegistrationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $token = $request->key;
-        //dd($token);
+
         if (is_null($token) OR empty($token) ){
             $response = [
                 'success'=> false,
                 'message'=> 'Token cannot be null'
             ];
-            return $response;
         }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
 
@@ -35,22 +29,31 @@ class ProductRegistrationController extends Controller
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                return $response;
             }else{
-                $transaction = ProductRegistration::select('*')
-                ->with('user')
-                ->with('invoice')
-                ->with('warranty')
-                ->where('country_code',$request->country_code)
-                ->get();
-                $response = [
-                    'success'=> true,
-                    'message'=> 'List Registration',
-                    'data'=> $transaction
-                ];
-                return $response;
+				if(!empty($request->phone) && !empty($request->email) && !empty($request->country_code)){
+					$productRegistrations = ProductRegistration::select('*')
+						->with('user')
+						->with('invoice')
+						->with('warranty')
+						->where('country_code', $request->country_code)
+						->where('phone', $request->phone)
+						->where('email', $request->email)
+						->get();
+
+					$response = [
+						'success'=> true,
+						'message'=> 'List Registration',
+						'data'=> $productRegistrations
+					];
+				}else{
+					$response = [
+                        'success' => false,
+                        'message' => 'Filter cannot be null'
+                    ];
+				}
             }
         }
+		return $response;
     }
 
     public function store(Request $request)
@@ -88,7 +91,7 @@ class ProductRegistrationController extends Controller
                     'store_name' => ['required'],
                     'invoice' => ['required', 'mimes:jpg,jpeg,png,svg,pdf'],
                     'warranty' => ['required', 'mimes:jpg,jpeg,png,svg,pdf'],
-                    
+
                 ]);
                 DB::beginTransaction();
                 try {
@@ -105,12 +108,12 @@ class ProductRegistrationController extends Controller
                     )
                     ->where('id_village', $village->id_village)
                     ->first();
-                    
+
                     $province = MasterCity::select('*')
                     ->where('id_city', $district->id_city)
                     ->first();
 
-                    
+
                         $id_village     = $district->id_village;
                         $id_district    = $district->id_district;
                         $id_city        = $district->id_city;
@@ -135,9 +138,9 @@ class ProductRegistrationController extends Controller
                         'store_name' => $request->store_name,
                         'country_code' => $request->country_code,
                         'language_code' => $request->language_code,
-                        'data_source'          => 'CHAT',                        
+                        'data_source'          => 'CHAT',
                     ];
-    
+
 
                     //$data->user_id = Auth::id();
                     $data->fill($insReg);
@@ -152,7 +155,7 @@ class ProductRegistrationController extends Controller
                     $response = [
                         'success'=> true,
                         'message'=> 'Your information has been saved, please wait for a reply from our customer service'
-                    
+
                     ];
                     return $response;
 
@@ -163,7 +166,7 @@ class ProductRegistrationController extends Controller
                     $response = [
                         'success'=> false,
                         'message'=> 'Insert data failed'
-                       
+
                     ];
                 }
             }
@@ -194,5 +197,5 @@ class ProductRegistrationController extends Controller
         }
 
         Storage::putFileAs("$path/", $document, $fileName, 'public');
-    } 
+    }
 }
