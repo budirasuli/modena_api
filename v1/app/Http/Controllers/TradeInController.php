@@ -36,31 +36,45 @@ class TradeInController extends Controller
             }else{
 				if(!empty($request->phone)){
 					if($request->email){
-						$rental = FormTradeIn::select('*')
+						$tradeIn = FormTradeIn::select('*')
 							->with('formTradeInProductInformation')
 							->with('formTradeInProductInformation.image')
 							->where('country_code', $request->country_code)
 							->where('phone', $request->phone)
 							->orWhere('email', $request->email)
-							->get();
+							->get()
+							->toArray();
+
+						foreach($tradeIn as $key => $val){
+							foreach($val['form_trade_in_product_information'] as $key2 => $val2){
+								$tradeIn[$key]['form_trade_in_product_information'][$key2]['image'] = Storage::disk('sftp')->url($val2['image']['directory']);
+							}
+						}
 
 						$response = [
 							'success'=> true,
 							'message'=> 'List Trade In',
-							'data'=> $rental
+							'data'=> $tradeIn
 						];
 					}else{
-						$rental = FormTradeIn::select('*')
+						$tradeIn = FormTradeIn::select('*')
 							->with('formTradeInProductInformation')
 							->with('formTradeInProductInformation.image')
 							->where('country_code', $request->country_code)
 							->where('phone', $request->phone)
-							->get();
+							->get()
+							->toArray();
+
+						foreach($tradeIn as $key => $val){
+							foreach($val['form_trade_in_product_information'] as $key2 => $val2){
+								$tradeIn[$key]['form_trade_in_product_information'][$key2]['image'] = Storage::disk('sftp')->url($val2['image']['directory']);
+							}
+						}
 
 						$response = [
 							'success'=> true,
 							'message'=> 'List Trade In',
-							'data'=> $rental
+							'data'=> $tradeIn
 						];
 					}
 				}else{
