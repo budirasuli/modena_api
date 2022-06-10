@@ -63,17 +63,17 @@ class ProductController extends Controller
                     ];
                     return $response;
                 }
-           
+
             }
         }
 
     }
 
-   
+
     public function product_category(Request $request)
     {
         $token = $request->key;
-        //dd($token);
+
         if (is_null($token) OR empty($token) ){
             $response = [
                 'success'=> false,
@@ -102,11 +102,11 @@ class ProductController extends Controller
                     'data'=> $transaction
                 ];
                 return $response;
-                
+
             }
         }
     }
-   
+
 
     /**
      * Show the form for creating a new resource.

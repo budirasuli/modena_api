@@ -67,11 +67,16 @@ class ProductRegistration extends Model
     const OUT_WARRANTY = 'out_warranty';
     const REJECTED = 'rejected';
     public $fillable = [
+		'user_id',
+		'country_code',
         'first_name',
         'last_name',
         'address',
         'province_id',
         'city_id',
+		'district_id',
+		'subdistrict_id',
+        'postal_code',
         'email',
         'phone',
         'brand',
@@ -80,11 +85,8 @@ class ProductRegistration extends Model
         'serial_number',
         'store_name',
         'data_source',
-        'language_code',
-        'country_code',
         'product_id',
         'category_id',
-        'user_id',
     ];
 
     public $appends = [
@@ -103,12 +105,14 @@ class ProductRegistration extends Model
 
     public function warranty()
     {
-        return $this->morphOne(Media::class, 'mediable')->where('content_type', 'warranty');
+        // return $this->morphOne(Media::class, 'mediable')->where('content_type', 'warranty');
+		return $this->morphOne('App\Models\Media', 'mediable')->where('content_type', 'warranty');
     }
 
     public function invoice()
     {
-        return $this->morphOne(Media::class, 'mediable')->where('content_type', 'invoice');
+        // return $this->morphOne(Media::class, 'mediable')->where('content_type', 'invoice');
+		return $this->morphOne('App\Models\Media', 'mediable')->where('content_type', 'invoice');
     }
 
     public function user()
