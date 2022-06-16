@@ -25,10 +25,25 @@ class ClaimCashbackController extends Controller
                 'message'=> 'Token cannot be null'
             ];
         }else{
-			$cashbackProducts = FormClaimCashback::with('formClaimCashbackProductInformation')
+			$cashbackProducts = FormClaimCashback::with([
+					'formClaimCashbackProductInformation',
+					'id_card',
+					'selfie_with_id_card'
+				])
 				->where('phone', $request->phone)
 				->where('email', $request->email)
-				->get();
+				->get()
+				->toArray();
+
+			foreach($cashbackProducts as $key => $val){
+				if(!empty($val['id_card'])){
+					$cashbackProducts[$key]['id_card'] = Storage::disk('sftp')->url($val['id_card']['directory']);
+				}
+
+				if(!empty($val['selfie_with_id_card'])){
+					$cashbackProducts[$key]['selfie_with_id_card'] = Storage::disk('sftp')->url($val['selfie_with_id_card']['directory']);
+				}
+			}
 
 			$response = [
 				'success'=> true,

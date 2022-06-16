@@ -19,7 +19,6 @@ class ProductController extends Controller
                 'success'=> false,
                 'message'=> 'Token cannot be null'
             ];
-            return $response;
         }else{
             $api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
 
@@ -28,25 +27,74 @@ class ProductController extends Controller
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                return $response;
-            }else
-            {
+            }else{
                 if($request->is_rental){
-                    $transaction = DB::table('product_master')->select('*', DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental"))
-                    ->where('country_code',$request->country_code)
-                    ->where('language_code',$request->language_code)
-                    ->get();
+					if(empty($request->term)){
+						$transaction = DB::table('product_master')
+							->select(
+								'*',
+								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
+							)
+							->where('country_code',$request->country_code)
+							->where('language_code',$request->language_code)
+							->get();
+					}else{
+						$a = $b = $request->term;
+
+						$transaction = DB::table('product_master')
+							->select(
+								'*',
+								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
+							)
+							->where('country_code',$request->country_code)
+							->where('language_code',$request->language_code)
+							->where(function ($query) use ($a){
+								$query->where('product_master.master_name', 'LIKE', '%'.$a.'%')
+								->orWhere(function($query2) use ($a) {
+									$query2->where(DB::raw("LOWER(product_master.type)"),'like',"%$a%")
+										   ->orWhere(DB::raw("LOWER(REPLACE(product_master.type,' ',''))"),'like',"%$a%");
+								});
+							})
+							->get();
+					}
+
                     $response = [
                         'success'=> true,
                         'message'=> 'List Product Rental',
                         'data'=> $transaction
                     ];
+
                     return $response;
                 }else{
-                    $transaction = DB::table('product_master')->select('*', DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"))
-                    ->where('country_code',$request->country_code)
-                    ->where('language_code',$request->language_code)
-                    ->get();
+					if(empty($request->term)){
+						$transaction = DB::table('product_master')
+							->select(
+								'*',
+								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price")
+							)
+							->where('country_code',$request->country_code)
+							->where('language_code',$request->language_code)
+							->get();
+					}else{
+						$a = $b = $request->term;
+
+						$transaction = DB::table('product_master')
+							->select(
+								'*',
+								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price")
+							)
+							->where('country_code',$request->country_code)
+							->where('language_code',$request->language_code)
+							->where(function ($query) use ($a){
+								$query->where('product_master.master_name', 'LIKE', '%'.$a.'%')
+								->orWhere(function($query2) use ($a) {
+									$query2->where(DB::raw("LOWER(product_master.type)"),'like',"%$a%")
+										   ->orWhere(DB::raw("LOWER(REPLACE(product_master.type,' ',''))"),'like',"%$a%");
+								});
+							})
+							->get();
+					}
+
                     $response = [
                         'success'=> true,
                         'message'=> 'List Product Non Rental',
@@ -58,6 +106,7 @@ class ProductController extends Controller
             }
         }
 
+		return $response;
     }
 
     public function product_category(Request $request)

@@ -16,6 +16,7 @@ class FormClaimCashback extends Model
 		'csms_address_id',
 		'csms_phone_id',
 		'country_code',
+		'cashback_type',
 		'name',
 		'phone',
 		'email',
