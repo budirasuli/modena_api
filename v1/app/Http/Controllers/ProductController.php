@@ -6,18 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\ProductMaster;
 use Illuminate\Support\Facades\DB;
+use Storage;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         $token = $request->key;
-        //dd($token);
+
         if (is_null($token) OR empty($token) ){
             $response = [
                 'success'=> false,
@@ -36,11 +32,6 @@ class ProductController extends Controller
             }else
             {
                 if($request->is_rental){
-                    // $transaction = ProductMaster::select('*')
-                    // ->with('productDetail')
-                    // ->where('country_code',$request->country_code)
-                    // ->where('language_code',$request->language_code)
-                    // ->get();
                     $transaction = DB::table('product_master')->select('*', DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental"))
                     ->where('country_code',$request->country_code)
                     ->where('language_code',$request->language_code)
@@ -68,7 +59,6 @@ class ProductController extends Controller
         }
 
     }
-
 
     public function product_category(Request $request)
     {
@@ -107,12 +97,42 @@ class ProductController extends Controller
         }
     }
 
+	public function product_sub_category(Request $request)
+	{
+		$token = $request->key;
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+        if (is_null($token) OR empty($token) ){
+            $response = [
+                'success'=> false,
+                'message'=> 'Token cannot be null'
+            ];
+        }else{
+			$api_key = DB::table('api_clients')->select('*')->where('api_token', $token)->first();
+
+            if(!$api_key){
+                $response = [
+                    'success'=> false,
+                    'message'=> 'Token mismatch'
+                ];
+			}else{
+				$subProducts = DB::table('product_sub_category')
+					->select('*')
+                	->where('country_code', $request->country_code)
+                	->where('language_code', $request->language_code)
+                	->where('active', 1)
+                	->get();
+
+                $response = [
+                    'success'=> true,
+                    'message'=> 'List Product Sub Category',
+                    'data'=> $subProducts
+                ];
+			}
+		}
+
+		return $response;
+	}
+
     public function detail(Request $request)
     {
 
@@ -135,20 +155,28 @@ class ProductController extends Controller
                 ];
                 return $response;
             }else{
-                $transaction = Product::select('*', DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental"))
-                ->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
-                ->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
-                ->where('media.mediable_type', 'App\Model\ProductMasterId')
-                ->where('product_master.country_code',$request->country_code)
-                ->where('product_master.language_code',$request->language_code)
-                ->where('product_master.type', $request->model)
-                ->first();
-                $response = [
-                    'success'=> true,
-                    'message'=> 'Detail Product',
-                    'data'=> $transaction
-                ];
-                return $response;
+                $transaction = Product::select(
+						'*',
+						DB::raw("(SELECT MAX(price) * 0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
+					)
+					->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+					->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
+					->where('media.mediable_type', 'App\Model\ProductMasterId')
+					->where('product_master.country_code',$request->country_code)
+					->where('product_master.language_code',$request->language_code)
+					->where('product_master.type', $request->model)
+					->first()
+					->toArray();
+
+				$transaction['image'] = Storage::disk('sftp')->url($transaction['path'] . '/' . $transaction['file_name']);
+
+				$response = [
+					'success'=> true,
+					'message'=> 'Detail Product',
+					'data'=> $transaction
+				];
+
+				return $response;
             }
         }
     }

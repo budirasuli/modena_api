@@ -34,7 +34,7 @@ class RentalController extends Controller
 				if(!empty($request->phone)){
 					if($request->email){
 						$rental = Rental::select('*')
-							->with('product')
+							->with(['product', 'province', 'city', 'district', 'village'])
 							->where('country_code', $request->country_code)
 							->where('phone', $request->phone)
 							->Orwhere('email', $request->email)
@@ -47,7 +47,7 @@ class RentalController extends Controller
 						];
 					}else{
 						$rental = Rental::select('*')
-							->with('product')
+							->with(['product', 'province', 'city', 'district', 'village'])
 							->where('country_code', $request->country_code)
 							->where('phone', $request->phone)
 							->get();
