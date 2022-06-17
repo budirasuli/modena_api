@@ -13,6 +13,7 @@ use App\Http\Controllers\UserRegisterController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ClaimCashbackController;
+use App\Http\Controllers\CustomerSurveyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -80,3 +81,7 @@ Route::get('/brand', [BrandController::class, 'index']);
 // Cashback
 Route::get('/claim-cashback', [ClaimCashbackController::class, 'index']);
 Route::post('/claim-cashback', [ClaimCashbackController::class, 'store']);
+
+// Customer Survey
+Route::get('/customer-survey', [CustomerSurveyController::class, 'index']);
+Route::post('/customer-survey', [CustomerSurveyController::class, 'store']);

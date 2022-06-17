@@ -14,8 +14,8 @@ class AddDataSourceAndTitleCodeToFormTradeInTable extends Migration
     public function up()
     {
         Schema::table('form_trade_in', function (Blueprint $table) {
-            $table->string('data_source', 5)->default('WEB')->after('updated_at');
-            $table->string('title_code', 5)->after('postal_code');
+            // $table->string('data_source', 5)->default('WEB')->after('updated_at');
+            // $table->string('title_code', 5)->after('postal_code');
         });
     }
 
