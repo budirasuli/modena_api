@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductMaster;
 use Illuminate\Support\Facades\DB;
 use Storage;
+use File;
 
 class ProductController extends Controller
 {
@@ -217,7 +218,11 @@ class ProductController extends Controller
 					->first()
 					->toArray();
 
-				$transaction['image'] = Storage::disk('sftp')->url($transaction['path'] . '/' . $transaction['file_name']);
+				$sftpImage = Storage::disk('sftp')->get($transaction['path'] . '/' . $transaction['file_name']);
+				$filename = File::name($transaction['name']);
+				$extension = File::extension($transaction['name']);
+				Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+				$transaction['image'] = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
 
 				$response = [
 					'success'=> true,
