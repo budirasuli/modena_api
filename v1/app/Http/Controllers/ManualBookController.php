@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use DB;
 use Storage;
 use Response;
+use File;
 
 class ManualBookController extends Controller
 {
@@ -55,7 +56,13 @@ class ManualBookController extends Controller
                         'data' => null
                     ];
                 }else{
-                    $file = Storage::disk('sftp')->url($manual_books->path.'/'.$manual_books->file_name);
+					$file = Storage::disk('sftp')->url($manual_books->path.'/'.$manual_books->file_name);
+					// $filename = File::name($file);
+					// $extension = File::extension($file);
+					dd($file);
+					Storage::disk('public')->put("temp/".$filename.'.'.$extension, $file);
+					$file = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+                    // $file = Storage::disk('sftp')->url($manual_books->path.'/'.$manual_books->file_name);
 
                     $response = [
                         'success'=> true,
