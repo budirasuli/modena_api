@@ -224,6 +224,7 @@ class ProductController extends Controller
 					->toArray();
 
 				$sftpImage = Storage::disk('sftp')->get($transaction['path'] . '/' . $transaction['file_name']);
+				dd($sftpImage);
 				$filename = File::name($transaction['name']);
 				$extension = File::extension($transaction['name']);
 				Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
