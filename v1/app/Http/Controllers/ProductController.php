@@ -220,7 +220,6 @@ class ProductController extends Controller
 					->where('product_master.country_code',$request->country_code)
 					->where('product_master.language_code',$request->language_code)
 					->where('product_master.type', $request->model)
-					->where('product_detail.is_rental = 1')
 					->first()
 					->toArray();
 
