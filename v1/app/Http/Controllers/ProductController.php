@@ -36,8 +36,10 @@ class ProductController extends Controller
 								'*',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
 							)
-							->where('country_code',$request->country_code)
-							->where('language_code',$request->language_code)
+							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->where('product_master.country_code',$request->country_code)
+							->where('product_master.language_code',$request->language_code)
+							->where('product_detail.is_rental', 1)
 							->get();
 					}else{
 						$a = $b = $request->term;
@@ -47,8 +49,9 @@ class ProductController extends Controller
 								'*',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
 							)
-							->where('country_code',$request->country_code)
-							->where('language_code',$request->language_code)
+							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->where('product_master.country_code',$request->country_code)
+							->where('product_master.language_code',$request->language_code)
 							->where(function ($query) use ($a){
 								$query->where('product_master.master_name', 'LIKE', '%'.$a.'%')
 								->orWhere(function($query2) use ($a) {
@@ -56,6 +59,7 @@ class ProductController extends Controller
 										   ->orWhere(DB::raw("LOWER(REPLACE(product_master.type,' ',''))"),'like',"%$a%");
 								});
 							})
+							->where('product_detail.is_rental', 1)
 							->get();
 					}
 
@@ -216,6 +220,7 @@ class ProductController extends Controller
 					->where('product_master.country_code',$request->country_code)
 					->where('product_master.language_code',$request->language_code)
 					->where('product_master.type', $request->model)
+					->where('product_detail.is_rental = 1')
 					->first()
 					->toArray();
 
