@@ -207,8 +207,7 @@ class ProductController extends Controller
             }else{
                 $transaction = Product::select(
 						'*',
-						DB::raw("(SELECT MAX(price) * 0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code
-						-- AND is_rental = 1
+						DB::raw("(SELECT MAX(price) * 0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code AND is_rental = 1
 						) as price_rental")
 					)
 					->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
