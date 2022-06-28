@@ -189,21 +189,21 @@ class RentalController extends Controller
 
                 $rentalData = Rental::find($idInsRent);
 
-                // Mail::to(
-                //     env(
-                //         'CUSTOMERCARE_EMAIL_RECIPIENT',
-                //         'customercare@modena.com'
-                //     )
-                // )
-                // ->send(new \App\Mail\RentalMail($rentalData));
+                Mail::to(
+                    env(
+                        'CUSTOMERCARE_EMAIL_RECIPIENT',
+                        'customercare@modena.com'
+                    )
+                )
+                ->send(new \App\Mail\RentalMail($rentalData));
 
-                // if(env('CUSTOMERCARE_EMAIL_DEVMODE',false) == true) {
-                //     $bccs = explode(',', env('CUSTOMERCARE_EMAIL_BCC','dwiki.herdiansyah@modena.com'));
+                if(env('CUSTOMERCARE_EMAIL_DEVMODE',false) == true) {
+                    $bccs = explode(',', env('CUSTOMERCARE_EMAIL_BCC','dwiki.herdiansyah@modena.com'));
 
-                //     foreach ($bccs as $bcc) {
-                //         Mail::bcc($bcc)->send(new \App\Mail\RentalMail($rentalData));
-                //     }
-                // }
+                    foreach ($bccs as $bcc) {
+                        Mail::bcc($bcc)->send(new \App\Mail\RentalMail($rentalData));
+                    }
+                }
 
                 $response = [
                     'success'=> true,

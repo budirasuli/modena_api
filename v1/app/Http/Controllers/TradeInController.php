@@ -233,23 +233,21 @@ class TradeInController extends Controller
                     //     ->where('id',$idInsTrd)
                     //     ->first();
 
+                    Mail::to(
+                        env(
+                            'CUSTOMERCARE_EMAIL_RECIPIENT',
+                            'customercare@modena.com'
+                        )
+                    )
+                    ->send(new \App\Mail\TradeInMail($tradeInData));
 
+                    if(env('CUSTOMERCARE_EMAIL_DEVMODE',false) == true) {
+                        $bccs = explode(',', env('CUSTOMERCARE_EMAIL_BCC','dwiki.herdiansyah@modena.com'));
 
-                    // Mail::to(
-                    //     env(
-                    //         'CUSTOMERCARE_EMAIL_RECIPIENT',
-                    //         'customercare@modena.com'
-                    //     )
-                    // )
-                    // ->send(new \App\Mail\TradeInMail($tradeInData));
-
-                    // if(env('CUSTOMERCARE_EMAIL_DEVMODE',false) == true) {
-                    //     $bccs = explode(',', env('CUSTOMERCARE_EMAIL_BCC','dwiki.herdiansyah@modena.com'));
-
-                    //     foreach ($bccs as $bcc) {
-                    //         Mail::bcc($bcc)->send(new \App\Mail\TradeInMail($tradeInData));
-                    //     }
-                    // }
+                        foreach ($bccs as $bcc) {
+                            Mail::bcc($bcc)->send(new \App\Mail\TradeInMail($tradeInData));
+                        }
+                    }
 
                     DB::commit();
 
