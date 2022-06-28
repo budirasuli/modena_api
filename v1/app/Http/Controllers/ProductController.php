@@ -210,12 +210,21 @@ class ProductController extends Controller
                 return $response;
             }else{
                 $transaction = Product::select(
-						'*',
+						'product_master.*',
+						'product_detail.*',
+						'product_sizing.*',
+						'media.*',
+						'product_colors.color',
 						DB::raw("(SELECT MAX(price) * 0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code AND is_rental = 1
 						) as price_rental")
 					)
 					->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
 					->leftJoin('product_sizing', 'product_master.id_product_master_id', '=', 'product_sizing.id_product_master_id')
+					->leftJoin('product_colors', function($query) use ($request){
+						$query->on('product_colors.id_color', '=', 'product_detail.id_color_id');
+						$query->on('product_colors.country_code', '=', 'product_master.country_code');
+						$query->on('product_colors.language_code', '=', 'product_master.language_code');
+					})
 					->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
 					->where('media.mediable_type', 'App\Model\ProductMasterId')
 					->where('product_master.country_code',$request->country_code)
