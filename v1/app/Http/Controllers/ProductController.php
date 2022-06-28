@@ -212,14 +212,48 @@ class ProductController extends Controller
                 $transaction = Product::select(
 						'product_master.*',
 						'product_detail.*',
-						'product_sizing.*',
+						'size.lenght AS size_length',
+						'size.width AS size_width',
+						'size.height AS size_height',
+						'size.depth AS size_depth',
+						'size.thickness AS size_thickness',
+						'cod.lenght AS cod_length',
+						'cod.width AS cod_width',
+						'cod.height AS cod_height',
+						'cod.depth AS cod_depth',
+						'cod.thickness AS cod_thickness',
+						'tcod.lenght AS tcod_length',
+						'tcod.width AS tcod_width',
+						'tcod.height AS tcod_height',
+						'tcod.depth AS tcod_depth',
+						'tcod.thickness AS tcod_thickness',
+						'ucod.lenght AS ucod_length',
+						'ucod.width AS ucod_width',
+						'ucod.height AS ucod_height',
+						'ucod.depth AS ucod_depth',
+						'ucod.thickness AS ucod_thickness',
 						'media.*',
 						'product_colors.color',
 						DB::raw("(SELECT MAX(price) * 0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code AND is_rental = 1
 						) as price_rental")
 					)
 					->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
-					->leftJoin('product_sizing', 'product_master.id_product_master_id', '=', 'product_sizing.id_product_master_id')
+					->leftJoin('product_sizing AS size', function($query){
+						$query->on('product_master.id_product_master_id', '=', 'size.id_product_master_id');
+						$query->on('size.sizing_type', '=', DB::raw("'size'"));
+					})
+					->leftJoin('product_sizing AS cod', function($query){
+						$query->on('product_master.id_product_master_id', '=', 'cod.id_product_master_id');
+						$query->on('cod.sizing_type', '=', DB::raw("'cod'"));
+					})
+					->leftJoin('product_sizing AS tcod', function($query){
+						$query->on('product_master.id_product_master_id', '=', 'tcod.id_product_master_id');
+						$query->on('tcod.sizing_type', '=', DB::raw("'tcod'"));
+					})
+					->leftJoin('product_sizing AS ucod', function($query){
+						$query->on('product_master.id_product_master_id', '=', 'ucod.id_product_master_id');
+						$query->on('ucod.sizing_type', '=', DB::raw("'ucod'"));
+					})
 					->leftJoin('product_colors', function($query) use ($request){
 						$query->on('product_colors.id_color', '=', 'product_detail.id_color_id');
 						$query->on('product_colors.country_code', '=', 'product_master.country_code');
@@ -230,14 +264,18 @@ class ProductController extends Controller
 					->where('product_master.country_code',$request->country_code)
 					->where('product_master.language_code',$request->language_code)
 					->where('product_master.type', $request->model)
-					->first()
-					->toArray();
+					->first();
 
-				$sftpImage = Storage::disk('sftp')->get($transaction['path'] . '/' . $transaction['file_name']);
-				$filename = File::name($transaction['name']);
-				$extension = File::extension($transaction['name']);
-				Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
-				$transaction['image'] = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+				if(!empty($transaction)){
+					$transaction->toArray();
+
+					$sftpImage = Storage::disk('sftp')->get($transaction['path'] . '/' . $transaction['file_name']);
+					$filename = File::name($transaction['name']);
+					$extension = File::extension($transaction['name']);
+					Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+					$transaction['image'] = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+
+				}
 
 				$response = [
 					'success'=> true,
