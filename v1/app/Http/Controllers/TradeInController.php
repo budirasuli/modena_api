@@ -255,7 +255,8 @@ class TradeInController extends Controller
 
                     $response = [
                         'success'=> true,
-                        'message'=> 'Your information has been saved, please wait for a reply from our customer service !'
+                        'message'=> 'Your information has been saved, please wait for a reply from our customer service !',
+						'id' => $idInsTrd
                     ];
                     return $response;
 

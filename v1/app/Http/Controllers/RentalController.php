@@ -207,7 +207,8 @@ class RentalController extends Controller
 
                 $response = [
                     'success'=> true,
-                    'message'=> 'Your rental request form has been submitted'
+                    'message'=> 'Your rental request form has been submitted',
+					'id' => $idInsRent
                 ];
 
                 return $response;
