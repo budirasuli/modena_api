@@ -215,6 +215,7 @@ class ProductController extends Controller
 						) as price_rental")
 					)
 					->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+					->leftJoin('product_sizing', 'product_master.id_product_master_id', '=', 'product_sizing.id_product_master_id')
 					->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
 					->where('media.mediable_type', 'App\Model\ProductMasterId')
 					->where('product_master.country_code',$request->country_code)
@@ -224,7 +225,6 @@ class ProductController extends Controller
 					->toArray();
 
 				$sftpImage = Storage::disk('sftp')->get($transaction['path'] . '/' . $transaction['file_name']);
-				dd($sftpImage);
 				$filename = File::name($transaction['name']);
 				$extension = File::extension($transaction['name']);
 				Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
