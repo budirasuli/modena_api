@@ -261,6 +261,7 @@ class ProductController extends Controller
 					})
 					->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
 					->where('media.mediable_type', 'App\Model\ProductMasterId')
+					->where('media.content_type', 'Image')
 					->where('product_master.country_code',$request->country_code)
 					->where('product_master.language_code',$request->language_code)
 					->where('product_master.type', $request->model)
