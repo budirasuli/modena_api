@@ -62,11 +62,10 @@ return [
             'host' => env('SFTP_HOST'),
             'username' => env('SFTP_USERNAME'),
             'password' => env('SFTP_PASSWORD'),
-            // 'root' => '/data/var/www/html/staging/storage/app/public/',
             'root' => '/data/media/',
-            // 'url' => env('APP_URL').'/public/storage/',
             'url' => env('SFTP_HOST').':'.env('SFTP_PORT'),
             'visibility' => 'public',
+            'privateKey'    => env('SFTP_PRIVATE_KEY',''),
             'permPublic' => 0766,
         ],
 
