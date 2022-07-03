@@ -270,11 +270,15 @@ class ProductController extends Controller
 				if(!empty($transaction)){
 					$transaction->toArray();
 
-					$sftpImage = Storage::disk('sftp')->get($transaction['path'] . '/' . $transaction['file_name']);
-					$filename = File::name($transaction['name']);
-					$extension = File::extension($transaction['name']);
-					Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
-					$transaction['image'] = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+                    if(env('APP_ENV') == 'production'){
+						$transaction['image'] = Storage::disk('sftp')->url($transaction['path'] . '/' . $transaction['file_name']);
+					}else{
+						$sftpImage = Storage::disk('sftp')->get($transaction['path'] . '/' . $transaction['file_name']);
+						$filename = File::name($transaction['name']);
+						$extension = File::extension($transaction['name']);
+						Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+						$transaction['image'] = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+					}
 
 				}
 
