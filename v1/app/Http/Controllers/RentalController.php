@@ -187,7 +187,9 @@ class RentalController extends Controller
                     $idInsProduct = $dataProduct->id;
                 }
 
-                $rentalData = Rental::find($idInsRent);
+                $rentalData = Rental::with([
+					'product'
+				])->find($idInsRent);
 
                 Mail::to(
                     env(

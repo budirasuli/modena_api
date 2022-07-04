@@ -41,33 +41,32 @@
 		<td>{{ $data->village->village_name }}, {{ $data->postal_code }}</td>
 	</tr>
 	@foreach($data->formTradeInProductInformation as $id => $info)
-	    <tr>
-	        <td colspan="2"><b>Product {{ $id + 1 }}</b></td>
-	    </tr>
-	    <tr>
-    		<td width="30%">Brand</td>
-    		<td>{{ $info->brand }}</td>
-	    </tr>
-	    <tr>
-    		<td width="30%">Category</td>
-    		<td>{{ $info->category->sub_category_name }}</td>
-	    </tr>
-	    @foreach($info->requests as $key => $req)
-		    <tr>
-	    		<td width="30%">Request {{ $key+1 }}</td>
-	    		<td>{{ $req }}</td>
-		    </tr>
-	    @endforeach
-	    @if($info->image)
-		    <tr>
-	    		<td width="30%">
-	    		    <p/>
-	    		    <img src="{{ $info->image->path }}" width="150" />
-	    		    <a href="{{ $info->image->path }}" target="_blank">View Image</a>
-	    		</td>
-	    		<td></td>
-		    </tr>
-	    @endif
+	<tr>
+		<td colspan="2"><b>Product {{ $id + 1 }}</b></td>
+	</tr>
+	<tr>
+		<td width="30%">Brand</td>
+		<td>{{ $info->brand }}</td>
+	</tr>
+	<tr>
+		<td width="30%">Category</td>
+		<td>{{ $info->category->sub_category_name }}</td>
+	</tr>
+	{{-- @foreach($info->requests as $key => $req)
+		<tr>
+			<td width="30%">Request {{ $key+1 }}</td>
+			<td>{{ $req }}</td>
+		</tr>
+	@endforeach --}}
+	@if($info->image)
+		<tr>
+			<td width="30%">
+				<img src="{{ $info->image->path }}" width="150" />
+				<a href="{{ $info->image->path }}" target="_blank">View Image</a>
+			</td>
+			<td></td>
+		</tr>
+	@endif
 	@endforeach
 </table>
 <hr/>

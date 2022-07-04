@@ -225,7 +225,9 @@ class TradeInController extends Controller
                         }
                     }
 
-                    $tradeInData = FormTradeIn::find($idInsTrd);
+                    $tradeInData = FormTradeIn::with([
+						'formTradeInProductInformation'
+					])->find($idInsTrd);
 
                     // $tradeInData = FormTradeIn::select('*')
                     //     ->with('formTradeInProductInformation')
