@@ -15,5 +15,6 @@ class CustomerSurveyQuestion extends Model
 		'question_type',
 		'question',
 		'required',
+		'language_code'
 	];
 }

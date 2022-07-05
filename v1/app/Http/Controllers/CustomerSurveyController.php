@@ -28,7 +28,9 @@ class CustomerSurveyController extends Controller
                     'message'=> 'Token mismatch'
                 ];
             }else{
-				$questions = CustomerSurveyQuestion::get();
+				$language_code = !empty($request->language_code) ? $request->language_code : 'id';
+
+				$questions = CustomerSurveyQuestion::where('language_code', $language_code)->get();
 
 				$response = [
 					'success' => true,
@@ -62,6 +64,7 @@ class CustomerSurveyController extends Controller
 				$rules = [
                     'phone' => ['required'],
                     'email' => ['required'],
+					'language_code' => ['required'],
                     'id_customer_survey_question' => ['required'],
                     'answer' => ['required'],
                 ];
@@ -79,6 +82,7 @@ class CustomerSurveyController extends Controller
 						'phone' => $request->phone,
 						'email' => $request->email,
 						'id_customer_survey_question' => $request->id_customer_survey_question,
+						'language_code' => $request->language_code,
 						'answer' => $request->answer,
 						'data_source' => 'CHAT'
 					];

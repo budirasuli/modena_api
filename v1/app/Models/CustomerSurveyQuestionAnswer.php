@@ -16,5 +16,6 @@ class CustomerSurveyQuestionAnswer extends Model
 		'email',
 		'id_customer_survey_question',
 		'answer',
+		'language_code'
 	];
 }
