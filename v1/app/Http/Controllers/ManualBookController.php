@@ -56,12 +56,20 @@ class ManualBookController extends Controller
                         'data' => null
                     ];
                 }else{
+					// if(env('APP_ENV') == 'production'){
+					// 	$file = Storage::disk('sftp')->url($transaction['path'] . '/' . $transaction['file_name']);
+					// }else{
+					// 	$sftpImage = Storage::disk('sftp')->get($transaction['path'] . '/' . $transaction['file_name']);
+					// 	$filename = File::name($transaction['name']);
+					// 	$extension = File::extension($transaction['name']);
+					// 	Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+					// 	$transaction['image'] = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+					// }
 					$file = Storage::disk('sftp')->url($manual_books->path.'/'.$manual_books->file_name);
 					// $filename = File::name($file);
 					// $extension = File::extension($file);
-					dd($file);
-					Storage::disk('public')->put("temp/".$filename.'.'.$extension, $file);
-					$file = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+					// Storage::disk('public')->put("temp/".$filename.'.'.$extension, $file);
+					// $file = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
                     // $file = Storage::disk('sftp')->url($manual_books->path.'/'.$manual_books->file_name);
 
                     $response = [
