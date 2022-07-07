@@ -36,20 +36,132 @@ class ProductController extends Controller
 								'*',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
 							)
+							->select(
+								'product_master.*',
+								'product_detail.*',
+								'size.lenght AS size_length',
+								'size.width AS size_width',
+								'size.height AS size_height',
+								'size.depth AS size_depth',
+								'size.thickness AS size_thickness',
+								'cod.lenght AS cod_length',
+								'cod.width AS cod_width',
+								'cod.height AS cod_height',
+								'cod.depth AS cod_depth',
+								'cod.thickness AS cod_thickness',
+								'tcod.lenght AS tcod_length',
+								'tcod.width AS tcod_width',
+								'tcod.height AS tcod_height',
+								'tcod.depth AS tcod_depth',
+								'tcod.thickness AS tcod_thickness',
+								'ucod.lenght AS ucod_length',
+								'ucod.width AS ucod_width',
+								'ucod.height AS ucod_height',
+								'ucod.depth AS ucod_depth',
+								'ucod.thickness AS ucod_thickness',
+								'media.*',
+								'product_colors.color',
+								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
+							)
 							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->leftJoin('product_sizing AS size', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'size.id_product_master_id');
+								$query->on('size.sizing_type', '=', DB::raw("'size'"));
+							})
+							->leftJoin('product_sizing AS cod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'cod.id_product_master_id');
+								$query->on('cod.sizing_type', '=', DB::raw("'cod'"));
+							})
+							->leftJoin('product_sizing AS tcod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'tcod.id_product_master_id');
+								$query->on('tcod.sizing_type', '=', DB::raw("'tcod'"));
+							})
+							->leftJoin('product_sizing AS ucod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'ucod.id_product_master_id');
+								$query->on('ucod.sizing_type', '=', DB::raw("'ucod'"));
+							})
+							->leftJoin('product_colors', function($query) use ($request){
+								$query->on('product_colors.id_color', '=', 'product_detail.id_color_id');
+								$query->on('product_colors.country_code', '=', 'product_master.country_code');
+								$query->on('product_colors.language_code', '=', 'product_master.language_code');
+							})
+							->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
+							->where('media.mediable_type', 'App\Model\ProductMasterId')
+							->where('media.content_type', 'Image')
 							->where('product_master.country_code',$request->country_code)
 							->where('product_master.language_code',$request->language_code)
 							->where('product_detail.is_rental', 1)
-							->get();
+							->get()
+							->toArray();
+
+						foreach($transaction as $key => $val){
+							if(env('APP_ENV') == 'production'){
+								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+							}else{
+								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+								// $sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
+								// $filename = File::name($val->name);
+								// $extension = File::extension($val->name);
+								// Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+								// $transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+							}
+						}
 					}else{
 						$a = $b = $request->term;
 
 						$transaction = DB::table('product_master')
 							->select(
-								'*',
+								'product_master.*',
+								'product_detail.*',
+								'size.lenght AS size_length',
+								'size.width AS size_width',
+								'size.height AS size_height',
+								'size.depth AS size_depth',
+								'size.thickness AS size_thickness',
+								'cod.lenght AS cod_length',
+								'cod.width AS cod_width',
+								'cod.height AS cod_height',
+								'cod.depth AS cod_depth',
+								'cod.thickness AS cod_thickness',
+								'tcod.lenght AS tcod_length',
+								'tcod.width AS tcod_width',
+								'tcod.height AS tcod_height',
+								'tcod.depth AS tcod_depth',
+								'tcod.thickness AS tcod_thickness',
+								'ucod.lenght AS ucod_length',
+								'ucod.width AS ucod_width',
+								'ucod.height AS ucod_height',
+								'ucod.depth AS ucod_depth',
+								'ucod.thickness AS ucod_thickness',
+								'media.*',
+								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
 							)
 							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->leftJoin('product_sizing AS size', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'size.id_product_master_id');
+								$query->on('size.sizing_type', '=', DB::raw("'size'"));
+							})
+							->leftJoin('product_sizing AS cod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'cod.id_product_master_id');
+								$query->on('cod.sizing_type', '=', DB::raw("'cod'"));
+							})
+							->leftJoin('product_sizing AS tcod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'tcod.id_product_master_id');
+								$query->on('tcod.sizing_type', '=', DB::raw("'tcod'"));
+							})
+							->leftJoin('product_sizing AS ucod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'ucod.id_product_master_id');
+								$query->on('ucod.sizing_type', '=', DB::raw("'ucod'"));
+							})
+							->leftJoin('product_colors', function($query) use ($request){
+								$query->on('product_colors.id_color', '=', 'product_detail.id_color_id');
+								$query->on('product_colors.country_code', '=', 'product_master.country_code');
+								$query->on('product_colors.language_code', '=', 'product_master.language_code');
+							})
+							->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
+							->where('media.mediable_type', 'App\Model\ProductMasterId')
+							->where('media.content_type', 'Image')
 							->where('product_master.country_code',$request->country_code)
 							->where('product_master.language_code',$request->language_code)
 							->where(function ($query) use ($a){
@@ -60,7 +172,20 @@ class ProductController extends Controller
 								});
 							})
 							->where('product_detail.is_rental', 1)
-							->get();
+							->get()
+							->toArray();
+
+						foreach($transaction as $key => $val){
+							if(env('APP_ENV') == 'production'){
+								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+							}else{
+								$sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
+								$filename = File::name($val->name);
+								$extension = File::extension($val->name);
+								Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+								$transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+							}
+						}
 					}
 
                     $response = [
@@ -74,22 +199,132 @@ class ProductController extends Controller
 					if(empty($request->term)){
 						$transaction = DB::table('product_master')
 							->select(
-								'*',
+								'product_master.*',
+								'product_detail.*',
+								'size.lenght AS size_length',
+								'size.width AS size_width',
+								'size.height AS size_height',
+								'size.depth AS size_depth',
+								'size.thickness AS size_thickness',
+								'cod.lenght AS cod_length',
+								'cod.width AS cod_width',
+								'cod.height AS cod_height',
+								'cod.depth AS cod_depth',
+								'cod.thickness AS cod_thickness',
+								'tcod.lenght AS tcod_length',
+								'tcod.width AS tcod_width',
+								'tcod.height AS tcod_height',
+								'tcod.depth AS tcod_depth',
+								'tcod.thickness AS tcod_thickness',
+								'ucod.lenght AS ucod_length',
+								'ucod.width AS ucod_width',
+								'ucod.height AS ucod_height',
+								'ucod.depth AS ucod_depth',
+								'ucod.thickness AS ucod_thickness',
+								'media.*',
+								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price")
 							)
-							->where('country_code',$request->country_code)
-							->where('language_code',$request->language_code)
-							->get();
+							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->leftJoin('product_sizing AS size', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'size.id_product_master_id');
+								$query->on('size.sizing_type', '=', DB::raw("'size'"));
+							})
+							->leftJoin('product_sizing AS cod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'cod.id_product_master_id');
+								$query->on('cod.sizing_type', '=', DB::raw("'cod'"));
+							})
+							->leftJoin('product_sizing AS tcod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'tcod.id_product_master_id');
+								$query->on('tcod.sizing_type', '=', DB::raw("'tcod'"));
+							})
+							->leftJoin('product_sizing AS ucod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'ucod.id_product_master_id');
+								$query->on('ucod.sizing_type', '=', DB::raw("'ucod'"));
+							})
+							->leftJoin('product_colors', function($query) use ($request){
+								$query->on('product_colors.id_color', '=', 'product_detail.id_color_id');
+								$query->on('product_colors.country_code', '=', 'product_master.country_code');
+								$query->on('product_colors.language_code', '=', 'product_master.language_code');
+							})
+							->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
+							->where('media.mediable_type', 'App\Model\ProductMasterId')
+							->where('media.content_type', 'Image')
+							->where('product_master.country_code',$request->country_code)
+							->where('product_master.language_code',$request->language_code)
+							->get()
+							->toArray();
+
+						foreach($transaction as $key => $val){
+							if(env('APP_ENV') == 'production'){
+								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+							}else{
+								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+								// $sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
+								// $filename = File::name($val->name);
+								// $extension = File::extension($val->name);
+								// Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+								// $transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+							}
+						}
 					}else{
 						$a = $b = $request->term;
 
 						$transaction = DB::table('product_master')
 							->select(
-								'*',
+								'product_master.*',
+								'product_detail.*',
+								'size.lenght AS size_length',
+								'size.width AS size_width',
+								'size.height AS size_height',
+								'size.depth AS size_depth',
+								'size.thickness AS size_thickness',
+								'cod.lenght AS cod_length',
+								'cod.width AS cod_width',
+								'cod.height AS cod_height',
+								'cod.depth AS cod_depth',
+								'cod.thickness AS cod_thickness',
+								'tcod.lenght AS tcod_length',
+								'tcod.width AS tcod_width',
+								'tcod.height AS tcod_height',
+								'tcod.depth AS tcod_depth',
+								'tcod.thickness AS tcod_thickness',
+								'ucod.lenght AS ucod_length',
+								'ucod.width AS ucod_width',
+								'ucod.height AS ucod_height',
+								'ucod.depth AS ucod_depth',
+								'ucod.thickness AS ucod_thickness',
+								'media.*',
+								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price")
 							)
-							->where('country_code',$request->country_code)
-							->where('language_code',$request->language_code)
+							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->leftJoin('product_sizing AS size', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'size.id_product_master_id');
+								$query->on('size.sizing_type', '=', DB::raw("'size'"));
+							})
+							->leftJoin('product_sizing AS cod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'cod.id_product_master_id');
+								$query->on('cod.sizing_type', '=', DB::raw("'cod'"));
+							})
+							->leftJoin('product_sizing AS tcod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'tcod.id_product_master_id');
+								$query->on('tcod.sizing_type', '=', DB::raw("'tcod'"));
+							})
+							->leftJoin('product_sizing AS ucod', function($query){
+								$query->on('product_master.id_product_master_id', '=', 'ucod.id_product_master_id');
+								$query->on('ucod.sizing_type', '=', DB::raw("'ucod'"));
+							})
+							->leftJoin('product_colors', function($query) use ($request){
+								$query->on('product_colors.id_color', '=', 'product_detail.id_color_id');
+								$query->on('product_colors.country_code', '=', 'product_master.country_code');
+								$query->on('product_colors.language_code', '=', 'product_master.language_code');
+							})
+							->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
+							->where('media.mediable_type', 'App\Model\ProductMasterId')
+							->where('media.content_type', 'Image')
+							->where('product_master.country_code',$request->country_code)
+							->where('product_master.language_code',$request->language_code)
 							->where(function ($query) use ($a){
 								$query->where('product_master.master_name', 'LIKE', '%'.$a.'%')
 								->orWhere(function($query2) use ($a) {
@@ -97,8 +332,22 @@ class ProductController extends Controller
 										   ->orWhere(DB::raw("LOWER(REPLACE(product_master.type,' ',''))"),'like',"%$a%");
 								});
 							})
-							->get();
+							->get()
+							->toArray();
+
+						foreach($transaction as $key => $val){
+							if(env('APP_ENV') == 'production'){
+								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+							}else{
+								$sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
+								$filename = File::name($val->name);
+								$extension = File::extension($val->name);
+								Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+								$transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+							}
+						}
 					}
+
 
                     $response = [
                         'success'=> true,

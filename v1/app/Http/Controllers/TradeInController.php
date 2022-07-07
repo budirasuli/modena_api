@@ -46,7 +46,15 @@ class TradeInController extends Controller
 
 						foreach($tradeIn as $key => $val){
 							foreach($val['form_trade_in_product_information'] as $key2 => $val2){
-								$tradeIn[$key]['form_trade_in_product_information'][$key2]['image'] = Storage::disk('sftp')->url($val2['image']['directory']);
+								if(env('APP_ENV') == 'production'){
+									$tradeIn[$key]['form_trade_in_product_information'][$key2]['image'] = Storage::disk('sftp')->url($val2['image']['directory']);
+								}else{
+									$sftpImage = Storage::disk('sftp')->get($val2['image']['path'] . '/' . $val2['image']['file_name']);
+									$filename = File::name($val2['image']['name']);
+									$extension = File::extension($val2['image']['name']);
+									Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+									$tradeIn[$key]['form_trade_in_product_information'][$key2]['image'] = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+								}
 							}
 						}
 
@@ -66,7 +74,15 @@ class TradeInController extends Controller
 
 						foreach($tradeIn as $key => $val){
 							foreach($val['form_trade_in_product_information'] as $key2 => $val2){
-								$tradeIn[$key]['form_trade_in_product_information'][$key2]['image'] = Storage::disk('sftp')->url($val2['image']['directory']);
+								if(env('APP_ENV') == 'production'){
+									$tradeIn[$key]['form_trade_in_product_information'][$key2]['image'] = Storage::disk('sftp')->url($val2['image']['directory']);
+								}else{
+									$sftpImage = Storage::disk('sftp')->get($val2['image']['path'] . '/' . $val2['image']['file_name']);
+									$filename = File::name($val2['image']['name']);
+									$extension = File::extension($val2['image']['name']);
+									Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+									$tradeIn[$key]['form_trade_in_product_information'][$key2]['image'] = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+								}
 							}
 						}
 
