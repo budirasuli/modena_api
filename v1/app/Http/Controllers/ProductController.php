@@ -497,7 +497,10 @@ class ProductController extends Controller
 						'ucod.height AS ucod_height',
 						'ucod.depth AS ucod_depth',
 						'ucod.thickness AS ucod_thickness',
-						'media.*',
+						// 'media.*',
+						'media.path',
+						'media.file_name',
+						'media.name as media_name',
 						'product_colors.color',
 						DB::raw("(SELECT MAX(price) * 0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code AND is_rental = 1
 						) as price_rental")
@@ -543,8 +546,8 @@ class ProductController extends Controller
 						$transaction['image'] = Storage::disk('sftp')->url($transaction['path'] . '/' . $transaction['file_name']);
 					}else{
 						$sftpImage = Storage::disk('sftp')->get($transaction['path'] . '/' . $transaction['file_name']);
-						$filename = File::name($transaction['name']);
-						$extension = File::extension($transaction['name']);
+						$filename = File::name($transaction['media_name']);
+						$extension = File::extension($transaction['media_name']);
 						Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
 						$transaction['image'] = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
 					}
