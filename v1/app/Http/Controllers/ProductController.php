@@ -59,7 +59,7 @@ class ProductController extends Controller
 								'ucod.height AS ucod_height',
 								'ucod.depth AS ucod_depth',
 								'ucod.thickness AS ucod_thickness',
-								'media.*',
+								// 'media.*',
 								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
 							)
@@ -85,27 +85,27 @@ class ProductController extends Controller
 								$query->on('product_colors.country_code', '=', 'product_master.country_code');
 								$query->on('product_colors.language_code', '=', 'product_master.language_code');
 							})
-							->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
-							->where('media.mediable_type', 'App\Model\ProductMasterId')
-							->where('media.content_type', 'Image')
+							// ->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
+							// ->where('media.mediable_type', 'App\Model\ProductMasterId')
+							// ->where('media.content_type', 'Image')
 							->where('product_master.country_code',$request->country_code)
 							->where('product_master.language_code',$request->language_code)
 							->where('product_detail.is_rental', 1)
 							->get()
 							->toArray();
 
-						foreach($transaction as $key => $val){
-							if(env('APP_ENV') == 'production'){
-								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
-							}else{
-								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
-								// $sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
-								// $filename = File::name($val->name);
-								// $extension = File::extension($val->name);
-								// Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
-								// $transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
-							}
-						}
+						// foreach($transaction as $key => $val){
+						// 	if(env('APP_ENV') == 'production'){
+						// 		$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+						// 	}else{
+						// 		$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+						// 		// $sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
+						// 		// $filename = File::name($val->name);
+						// 		// $extension = File::extension($val->name);
+						// 		// Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+						// 		// $transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+						// 	}
+						// }
 					}else{
 						$a = $b = $request->term;
 
@@ -133,7 +133,7 @@ class ProductController extends Controller
 								'ucod.height AS ucod_height',
 								'ucod.depth AS ucod_depth',
 								'ucod.thickness AS ucod_thickness',
-								'media.*',
+								// 'media.*',
 								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
 							)
@@ -159,9 +159,9 @@ class ProductController extends Controller
 								$query->on('product_colors.country_code', '=', 'product_master.country_code');
 								$query->on('product_colors.language_code', '=', 'product_master.language_code');
 							})
-							->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
-							->where('media.mediable_type', 'App\Model\ProductMasterId')
-							->where('media.content_type', 'Image')
+							// ->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
+							// ->where('media.mediable_type', 'App\Model\ProductMasterId')
+							// ->where('media.content_type', 'Image')
 							->where('product_master.country_code',$request->country_code)
 							->where('product_master.language_code',$request->language_code)
 							->where(function ($query) use ($a){
@@ -175,17 +175,17 @@ class ProductController extends Controller
 							->get()
 							->toArray();
 
-						foreach($transaction as $key => $val){
-							if(env('APP_ENV') == 'production'){
-								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
-							}else{
-								$sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
-								$filename = File::name($val->name);
-								$extension = File::extension($val->name);
-								Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
-								$transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
-							}
-						}
+						// foreach($transaction as $key => $val){
+						// 	if(env('APP_ENV') == 'production'){
+						// 		$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+						// 	}else{
+						// 		$sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
+						// 		$filename = File::name($val->name);
+						// 		$extension = File::extension($val->name);
+						// 		Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+						// 		$transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+						// 	}
+						// }
 					}
 
                     $response = [
@@ -221,7 +221,7 @@ class ProductController extends Controller
 								'ucod.height AS ucod_height',
 								'ucod.depth AS ucod_depth',
 								'ucod.thickness AS ucod_thickness',
-								'media.*',
+								// 'media.*',
 								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price")
 							)
@@ -247,26 +247,26 @@ class ProductController extends Controller
 								$query->on('product_colors.country_code', '=', 'product_master.country_code');
 								$query->on('product_colors.language_code', '=', 'product_master.language_code');
 							})
-							->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
-							->where('media.mediable_type', 'App\Model\ProductMasterId')
-							->where('media.content_type', 'Image')
+							// ->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
+							// ->where('media.mediable_type', 'App\Model\ProductMasterId')
+							// ->where('media.content_type', 'Image')
 							->where('product_master.country_code',$request->country_code)
 							->where('product_master.language_code',$request->language_code)
 							->get()
 							->toArray();
 
-						foreach($transaction as $key => $val){
-							if(env('APP_ENV') == 'production'){
-								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
-							}else{
-								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
-								// $sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
-								// $filename = File::name($val->name);
-								// $extension = File::extension($val->name);
-								// Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
-								// $transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
-							}
-						}
+						// foreach($transaction as $key => $val){
+						// 	if(env('APP_ENV') == 'production'){
+						// 		$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+						// 	}else{
+						// 		$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+						// 		// $sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
+						// 		// $filename = File::name($val->name);
+						// 		// $extension = File::extension($val->name);
+						// 		// Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+						// 		// $transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+						// 	}
+						// }
 					}else{
 						$a = $b = $request->term;
 
@@ -294,7 +294,7 @@ class ProductController extends Controller
 								'ucod.height AS ucod_height',
 								'ucod.depth AS ucod_depth',
 								'ucod.thickness AS ucod_thickness',
-								'media.*',
+								// 'media.*',
 								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price")
 							)
@@ -320,9 +320,9 @@ class ProductController extends Controller
 								$query->on('product_colors.country_code', '=', 'product_master.country_code');
 								$query->on('product_colors.language_code', '=', 'product_master.language_code');
 							})
-							->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
-							->where('media.mediable_type', 'App\Model\ProductMasterId')
-							->where('media.content_type', 'Image')
+							// ->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
+							// ->where('media.mediable_type', 'App\Model\ProductMasterId')
+							// ->where('media.content_type', 'Image')
 							->where('product_master.country_code',$request->country_code)
 							->where('product_master.language_code',$request->language_code)
 							->where(function ($query) use ($a){
@@ -335,17 +335,17 @@ class ProductController extends Controller
 							->get()
 							->toArray();
 
-						foreach($transaction as $key => $val){
-							if(env('APP_ENV') == 'production'){
-								$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
-							}else{
-								$sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
-								$filename = File::name($val->name);
-								$extension = File::extension($val->name);
-								Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
-								$transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
-							}
-						}
+						// foreach($transaction as $key => $val){
+						// 	if(env('APP_ENV') == 'production'){
+						// 		$transaction[$key]->image = Storage::disk('sftp')->url($val->path . '/' . $val->file_name);
+						// 	}else{
+						// 		$sftpImage = Storage::disk('sftp')->get($val->path . '/' . $val->file_name);
+						// 		$filename = File::name($val->name);
+						// 		$extension = File::extension($val->name);
+						// 		Storage::disk('public')->put("temp/".$filename.'.'.$extension, $sftpImage);
+						// 		$transaction[$key]->image = Storage::disk('public')->url("temp/".$filename.'.'.$extension);
+						// 	}
+						// }
 					}
 
 
