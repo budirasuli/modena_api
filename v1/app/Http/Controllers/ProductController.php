@@ -63,7 +63,11 @@ class ProductController extends Controller
 								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
 							)
-							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->leftJoin('product_detail', function($query) use ($request){
+								$query->on('product_detail.id_product_master_id', '=', 'product_master.id_product_master_id');
+								$query->on('product_detail.country_code', '=', 'product_master.country_code');
+								$query->on('product_detail.language_code', '=', 'product_master.language_code');
+							})
 							->leftJoin('product_sizing AS size', function($query){
 								$query->on('product_master.id_product_master_id', '=', 'size.id_product_master_id');
 								$query->on('size.sizing_type', '=', DB::raw("'size'"));
@@ -137,7 +141,11 @@ class ProductController extends Controller
 								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price"),DB::raw("(SELECT MAX(price)*0.5 FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code  AND is_rental = 1 ) as price_rental")
 							)
-							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->leftJoin('product_detail', function($query) use ($request){
+								$query->on('product_detail.id_product_master_id', '=', 'product_master.id_product_master_id');
+								$query->on('product_detail.country_code', '=', 'product_master.country_code');
+								$query->on('product_detail.language_code', '=', 'product_master.language_code');
+							})
 							->leftJoin('product_sizing AS size', function($query){
 								$query->on('product_master.id_product_master_id', '=', 'size.id_product_master_id');
 								$query->on('size.sizing_type', '=', DB::raw("'size'"));
@@ -225,7 +233,11 @@ class ProductController extends Controller
 								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price")
 							)
-							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->leftJoin('product_detail', function($query) use ($request){
+								$query->on('product_detail.id_product_master_id', '=', 'product_master.id_product_master_id');
+								$query->on('product_detail.country_code', '=', 'product_master.country_code');
+								$query->on('product_detail.language_code', '=', 'product_master.language_code');
+							})
 							->leftJoin('product_sizing AS size', function($query){
 								$query->on('product_master.id_product_master_id', '=', 'size.id_product_master_id');
 								$query->on('size.sizing_type', '=', DB::raw("'size'"));
@@ -298,7 +310,11 @@ class ProductController extends Controller
 								'product_colors.color',
 								DB::raw("(SELECT MAX(price) FROM product_detail WHERE id_product_master_id=product_master.id_product_master_id AND country_code=product_master.country_code AND language_code=product_master.language_code) as price")
 							)
-							->leftJoin('product_detail', 'product_master.id_product_master_id', '=', 'product_detail.id_product_master_id')
+							->leftJoin('product_detail', function($query) use ($request){
+								$query->on('product_detail.id_product_master_id', '=', 'product_master.id_product_master_id');
+								$query->on('product_detail.country_code', '=', 'product_master.country_code');
+								$query->on('product_detail.language_code', '=', 'product_master.language_code');
+							})
 							->leftJoin('product_sizing AS size', function($query){
 								$query->on('product_master.id_product_master_id', '=', 'size.id_product_master_id');
 								$query->on('size.sizing_type', '=', DB::raw("'size'"));
@@ -323,8 +339,8 @@ class ProductController extends Controller
 							// ->leftJoin('media', 'product_master.id_product_master_id', '=', 'media.mediable_id')
 							// ->where('media.mediable_type', 'App\Model\ProductMasterId')
 							// ->where('media.content_type', 'Image')
-							->where('product_master.country_code',$request->country_code)
-							->where('product_master.language_code',$request->language_code)
+							->where('product_master.country_code', $request->country_code)
+							->where('product_master.language_code', $request->language_code)
 							->where(function ($query) use ($a){
 								$query->where('product_master.master_name', 'LIKE', '%'.$a.'%')
 								->orWhere(function($query2) use ($a) {
