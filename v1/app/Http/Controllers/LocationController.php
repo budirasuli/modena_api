@@ -21,7 +21,7 @@ class LocationController extends Controller
      */
     public function index(Request $request)
     {
-        
+
         $token = $request->key;
 
         if (is_null($token) || empty($token)){
@@ -37,7 +37,7 @@ class LocationController extends Controller
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                
+
             }else{
                 $country_code = DB::table('website_country')->select('*')
                 ->where('subdomain', $request->country_code)
@@ -52,7 +52,7 @@ class LocationController extends Controller
                     'message'=> 'Province List',
                     'data' => $transaction
                 ];
-                
+
             }
         }
         return $response;
@@ -60,7 +60,7 @@ class LocationController extends Controller
 
     public function city(Request $request)
     {
-        
+
         $token = $request->key;
 
         if (is_null($token) || empty($token)){
@@ -76,9 +76,9 @@ class LocationController extends Controller
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                
+
             }else{
-               
+
                 $transaction = MasterCity::select('*')
                 ->where('id_province', $request->id_province)
                 ->get();
@@ -88,7 +88,7 @@ class LocationController extends Controller
                     'message'=> 'City List',
                     'data' => $transaction
                 ];
-                
+
             }
         }
         return $response;
@@ -96,7 +96,7 @@ class LocationController extends Controller
 
     public function district(Request $request)
     {
-        
+
         $token = $request->key;
 
         if (is_null($token) || empty($token)){
@@ -112,9 +112,9 @@ class LocationController extends Controller
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                
+
             }else{
-               
+
                 $transaction = MasterDistrict::select('*')
                 ->where('id_city', $request->id_city)
                 ->get();
@@ -124,7 +124,7 @@ class LocationController extends Controller
                     'message'=> 'District List',
                     'data' => $transaction
                 ];
-                
+
             }
         }
         return $response;
@@ -132,7 +132,7 @@ class LocationController extends Controller
 
     public function subdistrict(Request $request)
     {
-        
+
         $token = $request->key;
 
         if (is_null($token) || empty($token)){
@@ -148,9 +148,9 @@ class LocationController extends Controller
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                
+
             }else{
-               
+
                 $transaction = MasterVillage::select('*')
                 ->where('id_district', $request->id_district)
                 ->get();
@@ -160,7 +160,7 @@ class LocationController extends Controller
                     'message'=> 'Village List',
                     'data' => $transaction
                 ];
-                
+
             }
         }
         return $response;
@@ -168,7 +168,7 @@ class LocationController extends Controller
 
     public function postalcode(Request $request)
     {
-        
+
         $token = $request->key;
 
         if (is_null($token) || empty($token)){
@@ -184,41 +184,64 @@ class LocationController extends Controller
                     'success'=> false,
                     'message'=> 'Token mismatch'
                 ];
-                
+
             }else{
                 if($request->postal_code){
-                    $village = MasterPostalCode::select('*')
-                    ->where('postal_code', $request->postal_code)
-                    ->first();
+                    $locationBasedOnPostalCode = MasterPostalCode::select(
+							'master_postal_code.postal_code',
+							'master_village.id_village',
+							'master_village.village_name',
+							'master_district.id_district',
+							'master_district.district_name',
+							'master_city.id_city',
+							'master_city.id_city_sap',
+							'master_city.city_name',
+							'master_province.id_province',
+							'master_province.id_province_sap',
+							'master_province.province_name',
+						)
+						->join('master_village', 'master_village.id_village', 'master_postal_code.id_village')
+						->join('master_district', 'master_district.id_district', 'master_village.id_district')
+						->join('master_city', 'master_city.id_city', 'master_district.id_city')
+						->join('master_province', 'master_province.id_province', 'master_city.id_province')
+						->where('postal_code', $request->postal_code)
+						->first();
 
-                    $district = DB::table('master_village')
-                    ->select('id_village','id_district',
-                    DB::raw("(SELECT DISTINCT(id_city) FROM master_district WHERE id_district=master_village.id_district) as id_city")
-                    )
-                    ->where('id_village', $village->id_village)
-                    ->first();
-                    
-                    $province = MasterCity::select('*')
-                    ->where('id_city', $district->id_city)
-                    ->first();
+					$postal_code 		= $locationBasedOnPostalCode->postal_code;
+					$id_village     	= $locationBasedOnPostalCode->id_village;
+					$village_name     	= $locationBasedOnPostalCode->village_name;
+					$id_district    	= $locationBasedOnPostalCode->id_district;
+					$district_name     	= $locationBasedOnPostalCode->district_name;
+					$id_city        	= $locationBasedOnPostalCode->id_city;
+					$id_city_sap    	= $locationBasedOnPostalCode->id_city_sap;
+					$city_name    		= $locationBasedOnPostalCode->city_name;
+					$id_province    	= $locationBasedOnPostalCode->id_province;
+					$id_province_sap    = $locationBasedOnPostalCode->id_province_sap;
+					$province_name 		= $locationBasedOnPostalCode->province_name;
 
-                        $postal_code    = $village->postal_code;
-                        $id_village     = $district->id_village;
-                        $id_district    = $district->id_district;
-                        $id_city        = $district->id_city;
-                        $id_province    = $province->id_province;
-                    
-                        $response = [
-                            'success'=> true,
-                            'message'=> 'Postal Code',
-                            'data' => 
-                            [$postal_code, $id_village, $id_district, $id_city, $id_province]
-                        ];  
-                    }else{
+					$response = [
+						'success'=> true,
+						'message'=> 'Postal Code',
+						'data' =>
+						[
+							'postal_code' => $postal_code,
+							'id_village' => $id_village,
+							'village_name' => $village_name,
+							'id_district' => $id_district,
+							'district_name' => $district_name,
+							'id_city' => $id_city,
+							'id_city_sap' => $id_city_sap,
+							'city_name' => $city_name,
+							'id_province' => $id_province,
+							'id_province_sap' => $id_province_sap,
+							'province_name' => $province_name,
+						]
+					];
+                }else{
                     $transaction = MasterPostalCode::select('*')
-                    ->where('id_village', $request->id_village)
-                    ->get();
-    
+						->where('id_village', $request->id_village)
+						->get();
+
                     $response = [
                         'success'=> true,
                         'message'=> 'Postal Code',
